@@ -121,11 +121,6 @@ class xPDO {
     const OPT_HYDRATE_RELATED_OBJECTS = 'hydrate_related_objects';
     const OPT_LOCKFILE_EXTENSION = 'lockfile_extension';
     const OPT_USE_FLOCK = 'use_flock';
-    /**
-     * @deprecated
-     * @see call()
-     */
-    const OPT_LOADER_CLASSES = 'loader_classes';
     const OPT_ON_SET_STRIPSLASHES = 'on_set_stripslashes';
     const OPT_SETUP = 'setup';
     const OPT_TABLE_PREFIX = 'table_prefix';
@@ -765,35 +760,6 @@ class xPDO {
             }
         }
         return $instance;
-    }
-
-    /**
-     * Finds the class responsible for loading instances of the specified class.
-     *
-     * @deprecated Use call() instead.
-     * @param string $className The name of the class to find a loader for.
-     * @param string $method Indicates the specific loader method to use,
-     * loadCollection or loadObject (or other public static methods).
-     * @return callable A callable loader function.
-     */
-    public function getObjectLoader($className, $method) {
-        $loader = false;
-        if (isset($this->config[xPDO::OPT_LOADER_CLASSES]) && is_array($this->config[xPDO::OPT_LOADER_CLASSES])) {
-            if ($ancestry = $this->getAncestry($className, true)) {
-                if ($callbacks = array_intersect($ancestry, $this->config[xPDO::OPT_LOADER_CLASSES])) {
-                    if ($loaderClass = reset($callbacks)) {
-                        $loader = array($loaderClass, $method);
-                        while (!is_callable($loader) && $loaderClass = next($callbacks)) {
-                            $loader = array($loaderClass, $method);
-                        }
-                    }
-                }
-            }
-        }
-        if (!is_callable($loader)) {
-            $loader = array('xPDOObject', $method);
-        }
-        return $loader;
     }
 
     /**
