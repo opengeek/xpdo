@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+
 /**
  * Tests related to basic xPDOObject methods when using single-table inheritance features
  *
@@ -149,9 +151,9 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
-        $this->assertTrue($baseObject instanceof baseClass && $baseObject->get('class_key') == 'baseClass', "Error getting base object of the appropriate class.");
-        $this->assertTrue($derivedObject instanceof derivedClass && $derivedObject->get('class_key') == 'derivedClass', "Error getting derived object of the appropriate class.");
-        $this->assertTrue($derivedObject2 instanceof derivedClass2 && $derivedObject2->get('class_key') == 'derivedClass2', "Error getting derived object of the appropriate class.");
+        $this->assertTrue($baseObject instanceof \sample\sti\baseClass && $baseObject->get('class_key') == 'sample\\sti\\baseClass', "Error getting base object of the appropriate class.");
+        $this->assertTrue($derivedObject instanceof \sample\sti\derivedClass && $derivedObject->get('class_key') == 'sample\\sti\\derivedClass', "Error getting derived object of the appropriate class.");
+        $this->assertTrue($derivedObject2 instanceof \sample\sti\derivedClass2 && $derivedObject2->get('class_key') == 'sample\\sti\\derivedClass2', "Error getting derived object of the appropriate class.");
     }
 
     /**
@@ -191,20 +193,22 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
             $collection = $this->xpdo->getCollection('sti.baseClass');
+            /* @var \sample\sti\baseClass $object */
             foreach ($collection as $object) {
                 $result = false;
+                $expectedClass = '';
                 switch ($object->get('field1')) {
                     case 1:
-                        $expectedClass = 'baseClass';
-                        $result = ($object instanceof baseClass && $object->get('class_key') == 'baseClass');
+                        $expectedClass = 'sample\\sti\\baseClass';
+                        $result = ($object instanceof \sample\sti\baseClass && $object->get('class_key') == 'baseClass');
                         break;
                     case 2:
-                        $expectedClass = 'derivedClass';
-                        $result = ($object instanceof derivedClass && $object->get('class_key') == 'derivedClass');
+                        $expectedClass = 'sample\\sti\\derivedClass';
+                        $result = ($object instanceof \sample\sti\derivedClass && $object->get('class_key') == 'sample\\sti\\derivedClass');
                         break;
                     case 3:
-                        $expectedClass = 'derivedClass2';
-                        $result = ($object instanceof derivedClass2 && $object->get('class_key') == 'derivedClass2');
+                        $expectedClass = 'sample\\sti\\derivedClass2';
+                        $result = ($object instanceof \sample\sti\derivedClass2 && $object->get('class_key') == 'sample\\sti\\derivedClass2');
                         break;
                 }
                 $this->assertTrue($result, "Error getting derived object of the appropriate class ({$expectedClass}) in collection.");
@@ -223,6 +227,7 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
             $collection = $this->xpdo->getCollection("sti.{$expectedClass}");
+            /* @var \xPDO\om\xPDOObject $object */
             foreach ($collection as $object) {
                 $result = ($object instanceof $expectedClass && $object->get('class_key') == $expectedClass);
                 $this->assertTrue($result, "Error only getting derived objects of the specified derived class in collection.");
@@ -236,8 +241,8 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
      */
     public function providerGetSpecificDerivedCollection() {
         return array(
-            array('derivedClass'),
-            array('derivedClass2')
+            array('sample\\sti\\derivedClass'),
+            array('sample\\sti\\derivedClass2')
         );
     }
 
@@ -253,9 +258,9 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
-        $this->assertTrue($baseObject instanceof baseClass && $baseObject->get('class_key') == 'baseClass', "Error getting base object of the appropriate class from graph.");
-        $this->assertTrue($derivedObject instanceof derivedClass && $derivedObject->get('class_key') == 'derivedClass', "Error getting derived object of the appropriate class from graph.");
-        $this->assertTrue($derivedObject2 instanceof derivedClass2 && $derivedObject2->get('class_key') == 'derivedClass2', "Error getting derived object of the appropriate class from graph.");
+        $this->assertTrue($baseObject instanceof \sample\sti\baseClass && $baseObject->get('class_key') == 'sample\\sti\\baseClass', "Error getting base object of the appropriate class from graph.");
+        $this->assertTrue($derivedObject instanceof \sample\sti\derivedClass && $derivedObject->get('class_key') == 'sample\\sti\\derivedClass', "Error getting derived object of the appropriate class from graph.");
+        $this->assertTrue($derivedObject2 instanceof \sample\sti\derivedClass2 && $derivedObject2->get('class_key') == 'sample\\sti\\derivedClass2', "Error getting derived object of the appropriate class from graph.");
     }
 
     /**
@@ -265,20 +270,22 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
             $collection = $this->xpdo->getCollectionGraph('sti.baseClass', '{"relOne":{},"relMany":{}}');
+            /* @var \sample\sti\baseClass $object */
             foreach ($collection as $object) {
                 $result = false;
+                $expectedClass = '';
                 switch ($object->get('field1')) {
                     case 1:
                         $expectedClass = 'baseClass';
-                        $result = ($object instanceof baseClass && $object->get('class_key') == 'baseClass');
+                        $result = ($object instanceof \sample\sti\baseClass && $object->get('class_key') == 'sample\\sti\\baseClass');
                         break;
                     case 2:
                         $expectedClass = 'derivedClass';
-                        $result = ($object instanceof derivedClass && $object->get('class_key') == 'derivedClass');
+                        $result = ($object instanceof \sample\sti\derivedClass && $object->get('class_key') == 'sample\\sti\\derivedClass');
                         break;
                     case 3:
                         $expectedClass = 'derivedClass2';
-                        $result = ($object instanceof derivedClass2 && $object->get('class_key') == 'derivedClass2');
+                        $result = ($object instanceof \sample\sti\derivedClass2 && $object->get('class_key') == 'sample\\sti\\derivedClass2');
                         break;
                 }
                 $this->assertTrue($result, "Error getting derived object of the appropriate class ({$expectedClass}) in collection graph.");
@@ -291,9 +298,9 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     /**
      * Test saving instances of a base and various derived classes.
      *
-     * @param $expectedClass The expected class of the instance.
-     * @param $criteria The criteria for selecting the instance.
-     * @param $update The changes to make to the instance data to test the save.
+     * @param string $expectedClass The expected class of the instance.
+     * @param array $criteria The criteria for selecting the instance.
+     * @param array $update The changes to make to the instance data to test the save.
      * @dataProvider providerSaveDerivedObject
      */
     public function testSaveDerivedObject($expectedClass, $criteria, $update) {
@@ -317,9 +324,9 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
      */
     public function providerSaveDerivedObject() {
         return array(
-            array('baseClass', array('field1' => 1), array('field2' => 'updated base class string')),
-            array('derivedClass', array('field1' => 2), array('field2' => 'updated derived class string')),
-            array('derivedClass2', array('field1' => 3), array('field2' => 'updated derived class 2 string', 'field3' => 'updated derived field content'))
+            array('sample\\sti\\baseClass', array('field1' => 1), array('field2' => 'updated base class string')),
+            array('sample\\sti\\derivedClass', array('field1' => 2), array('field2' => 'updated derived class string')),
+            array('sample\\sti\\derivedClass2', array('field1' => 3), array('field2' => 'updated derived class 2 string', 'field3' => 'updated derived field content'))
         );
     }
 }

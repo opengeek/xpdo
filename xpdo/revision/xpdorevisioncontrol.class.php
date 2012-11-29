@@ -5,6 +5,7 @@
  * @package xpdo
  * @subpackage revision
  */
+namespace xPDO\revision;
 
 /**
  * Utility class for creating, merging, and managing diffs for versioning.

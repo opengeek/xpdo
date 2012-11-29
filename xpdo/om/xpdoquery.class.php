@@ -24,6 +24,11 @@
  * @package xpdo
  * @subpackage om
  */
+namespace xPDO\om;
+
+use PDO;
+use PDOStatement;
+use xPDO\xPDO;
 
 /**
  * An xPDOCriteria derivative with methods for constructing complex statements.
@@ -521,6 +526,7 @@ abstract class xPDOQuery extends xPDOCriteria {
         $instances= array ();
         $collectionCaching = $this->xpdo->getOption(xPDO::OPT_CACHE_DB_COLLECTIONS, array(), 1);
         if (is_object($rows)) {
+            $cacheRows = null;
             if ($cacheFlag && $this->xpdo->_cacheEnabled && $collectionCaching > 0) {
                 $cacheRows = array();
             }
@@ -604,7 +610,7 @@ abstract class xPDOQuery extends xPDOCriteria {
     /**
      * Prepares the xPDOQuery for execution.
      *
-     * @return PDOStatement The PDOStatement representing the prepared query.
+     * @return PDOStatement|null The PDOStatement representing the prepared query.
      */
     public function prepare($bindings= array (), $byValue= true, $cacheFlag= null) {
         $this->stmt= null;

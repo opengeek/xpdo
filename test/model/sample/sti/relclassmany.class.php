@@ -1,2 +1,4 @@
 <?php
-class relClassMany extends xPDOSimpleObject {}
+namespace sample\sti;
+
+class relClassMany extends \xPDO\om\xPDOSimpleObject {}

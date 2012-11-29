@@ -1,5 +1,6 @@
 <?php
-require_once(dirname(__FILE__) . '/transient.class.php');
+namespace sample;
+
 class TransientDerivative extends Transient {
     public static function callTest() {
         return 'TransientDerivative';

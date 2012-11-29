@@ -17,6 +17,10 @@
  * xPDO; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+namespace xPDO\cache;
+
+use Memcache;
+use xPDO\xPDO;
 
 /**
  * Provides a memcache-powered xPDOCache implementation.
@@ -81,7 +85,7 @@ class xPDOMemCache extends xPDOCache {
     }
 
     public function replace($key, $var, $expire= 0, $options= array()) {
-        $replaced= $this->memcache->replace(
+        $replaced= $this->memcache->replaces(
             $this->getCacheKey($key),
             $var,
             $this->getOption($this->key . xPDO::OPT_CACHE_COMPRESS, $options, $this->getOption(xPDO::OPT_CACHE_COMPRESS, $options, false)),

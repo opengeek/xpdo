@@ -1,7 +1,7 @@
 <?php
 $xpdo_meta_map = array (
-  'xPDOObject' =>
+  'xPDO\\om\\xPDOObject' =>
   array (
-    0 => 'xPDOSimpleObject',
+    0 => 'xPDO\\om\\xPDOSimpleObject',
   ),
 );

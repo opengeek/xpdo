@@ -19,6 +19,7 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
 
 /**
  * Extends the basic PHPUnit TestCase class to provide xPDO specific methods

@@ -24,11 +24,13 @@
  * @package xpdo
  * @subpackage om.mysql
  */
+namespace xPDO\om\mysql;
 
-/**
- * Include the parent {@link xPDOManager} class.
- */
-require_once (dirname(dirname(__FILE__)) . '/xpdomanager.class.php');
+use \Exception;
+use \PDO;
+use \PDOStatement;
+use \PDOException;
+use xPDO\xPDO;
 
 /**
  * Provides MySQL data source management for an xPDO instance.
@@ -41,7 +43,7 @@ require_once (dirname(dirname(__FILE__)) . '/xpdomanager.class.php');
  * @package xpdo
  * @subpackage om.mysql
  */
-class xPDOManager_mysql extends xPDOManager {
+class xPDOManager extends \xPDO\om\xPDOManager {
     public function createSourceContainer($dsnArray = null, $username= null, $password= null, $containerOptions= array ()) {
         $created= false;
         if ($this->xpdo->getConnection(array(xPDO::OPT_CONN_MUTABLE => true))) {
@@ -128,6 +130,7 @@ class xPDOManager_mysql extends xPDOManager {
             $instance= $this->xpdo->newObject($className);
             if ($instance) {
                 $tableName= $this->xpdo->getTableName($className);
+                /* @var PDOStatement $existsStmt */
                 $existsStmt = $this->xpdo->query("SELECT COUNT(*) FROM {$tableName}");
                 if ($existsStmt && $existsStmt->fetchAll()) {
                     return true;

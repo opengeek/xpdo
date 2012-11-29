@@ -24,6 +24,7 @@
  * @package xpdo
  * @subpackage om
  */
+namespace xPDO\om;
 
 /**
  * Provides driver specific members and methods for an xPDO instance.
@@ -71,8 +72,8 @@ abstract class xPDODriver {
      *
      * @param xPDO $xpdo A reference to a specific xPDO instance.
      */
-    public function __construct(xPDO &$xpdo) {
-        if ($xpdo !== null && $xpdo instanceof xPDO) {
+    public function __construct(\xPDO\xPDO &$xpdo) {
+        if ($xpdo !== null && $xpdo instanceof \xPDO\xPDO) {
             $this->xpdo= & $xpdo;
             $this->xpdo->_quoteChar= $this->quoteChar;
             $this->xpdo->_escapeCharOpen= $this->escapeOpenChar;

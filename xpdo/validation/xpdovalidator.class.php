@@ -26,6 +26,10 @@
  * @package xpdo
  * @subpackage validation
  */
+namespace xPDO\validation;
+
+use xPDO\xPDO;
+use xPDO\om\xPDOObject;
 
 /**
  * The base validation service class.
@@ -36,7 +40,8 @@
  * @subpackage validation
  */
 class xPDOValidator {
-    public $object = null;
+    /** @var xPDOObject */
+    public $object;
     public $results = array();
     public $messages = array();
 

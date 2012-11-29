@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+
 /**
  * Tests related to limit statements.
  *
@@ -72,6 +74,7 @@ class xPDOQueryLimitTest extends xPDOTestCase {
      */
     public function testLimit($limit,$start = 0,$shouldEqual = true) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $result = array();
         try {
             $criteria = $this->xpdo->newQuery('Item');
             $criteria->limit($limit,$start);
@@ -82,7 +85,7 @@ class xPDOQueryLimitTest extends xPDOTestCase {
         $success = count($result) == $limit;
         if (!$shouldEqual) $success = !$success;
         if (!$success) {
-        	$this->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Expected {$limit}, got " . count($result) . "; with query: " . $criteria->toSql());
+        	$this->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Expected {$limit}, got " . count($result) . (!empty($criteria) ? "; with query: " . $criteria->toSql() : ''));
     	}
         $this->assertTrue($success,'xPDOQuery: Limit clause returned more than desired '.$limit.' result.');
     }
@@ -109,6 +112,7 @@ class xPDOQueryLimitTest extends xPDOTestCase {
      */
     public function testLimitWithGroupBy($limit,$start = 0,$shouldEqual = true) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $result = array();
         try {
             $criteria = $this->xpdo->newQuery('Item');
             $criteria->groupby('color');
@@ -140,6 +144,7 @@ class xPDOQueryLimitTest extends xPDOTestCase {
      */
     public function testLimitWithSortBy($limit,$start = 0,$shouldEqual = true) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $result = array();
         try {
             $criteria = $this->xpdo->newQuery('Item');
             $criteria->sortby('color','ASC');

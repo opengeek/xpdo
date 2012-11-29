@@ -17,6 +17,7 @@
  * xPDO; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+namespace xPDO\cache;
 
 /**
  * Provides an APC-powered xPDOCache implementation.
@@ -33,7 +34,7 @@ class xPDOAPCCache extends xPDOCache {
         if (function_exists('apc_exists')) {
             $this->initialized = true;
         } else {
-            $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, "xPDOAPCCache[{$this->key}]: Error creating APC cache provider; xPDOAPCCache requires the APC extension for PHP, version 2.0.0 or later.");
+            $this->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "xPDOAPCCache[{$this->key}]: Error creating APC cache provider; xPDOAPCCache requires the APC extension for PHP, version 2.0.0 or later.");
         }
     }
 
@@ -72,7 +73,7 @@ class xPDOAPCCache extends xPDOCache {
         if (!isset($options['multiple_object_delete']) || empty($options['multiple_object_delete'])) {
             $deleted= apc_delete($this->getCacheKey($key));
         } elseif (class_exists('APCIterator', true)) {
-            $iterator = new APCIterator('user', '/^' . str_replace('/', '\/', $this->getCacheKey($key)) . '/', APC_ITER_KEY);
+            $iterator = new \APCIterator('user', '/^' . str_replace('/', '\/', $this->getCacheKey($key)) . '/', APC_ITER_KEY);
             if ($iterator) {
                 $deleted = apc_delete($iterator);
             }
@@ -88,7 +89,7 @@ class xPDOAPCCache extends xPDOCache {
     public function flush($options= array()) {
         $flushed = false;
         if (class_exists('APCIterator', true) && $this->getOption('flush_by_key', $options, true) && !empty($this->key)) {
-            $iterator = new APCIterator('user', '/^' . str_replace('/', '\/', $this->key) . '\//', APC_ITER_KEY);
+            $iterator = new \APCIterator('user', '/^' . str_replace('/', '\/', $this->key) . '\//', APC_ITER_KEY);
             if ($iterator) {
                 $flushed = apc_delete($iterator);
             }

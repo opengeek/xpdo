@@ -23,6 +23,10 @@
  * @package xpdo
  * @subpackage transport
  */
+namespace xPDO\transport;
+
+use xPDO\xPDO;
+use xPDO\om\xPDOObject;
 
 /**
  * Represents an xPDOObject within an {@link xPDOTransport} package.
@@ -121,6 +125,7 @@ class xPDOObjectVehicle extends xPDOVehicle {
             }
             $preserveKeys = !empty ($vOptions[xPDOTransport::PRESERVE_KEYS]);
             $upgrade = !empty ($vOptions[xPDOTransport::UPDATE_OBJECT]);
+            $criteria = null;
             if (!empty ($vOptions[xPDOTransport::UNIQUE_KEY])) {
                 $uniqueKey = $object->get($vOptions[xPDOTransport::UNIQUE_KEY]);
                 if (is_array($uniqueKey)) {
@@ -282,6 +287,13 @@ class xPDOObjectVehicle extends xPDOVehicle {
 
     /**
      * Uninstall the xPDOObjects represented by a vehicle element from the transport host.
+     *
+     * @param xPDOTransport $transport
+     * @param array $options
+     * @param array $element
+     * @param xPDOObject|null $parentObject
+     * @param array $fkMeta
+     * @return bool
      */
     public function _uninstallObject(& $transport, $options, $element, & $parentObject, $fkMeta) {
         $uninstalled = false;
@@ -363,6 +375,12 @@ class xPDOObjectVehicle extends xPDOVehicle {
 
     /**
      * Uninstalls related objects from the vehicle.
+     *
+     * @param xPDOTransport $transport
+     * @param xPDOObject $parent
+     * @param array $element
+     * @param array $options
+     * @return bool
      */
     public function _uninstallRelated(& $transport, & $parent, $element, $options) {
         $uninstalled = true;

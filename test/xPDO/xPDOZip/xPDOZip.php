@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+use xPDO\compression\xPDOZip;
 
 /**
  * Tests related to xPDOZip methods

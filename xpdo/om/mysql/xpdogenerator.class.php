@@ -24,11 +24,11 @@
  * @package xpdo
  * @subpackage om.mysql
  */
+namespace xPDO\om\mysql;
 
-/**
- * Include the parent {@link xPDOGenerator} class.
- */
-include_once (dirname(dirname(__FILE__)) . '/xpdogenerator.class.php');
+use \PDO;
+use \PDOStatement;
+use xPDO\xPDO;
 
 /**
  * An extension for generating {@link xPDOObject} class and map files for MySQL.
@@ -40,7 +40,7 @@ include_once (dirname(dirname(__FILE__)) . '/xpdogenerator.class.php');
  * @package xpdo
  * @subpackage om.mysql
  */
-class xPDOGenerator_mysql extends xPDOGenerator {
+class xPDOGenerator extends \xPDO\om\xPDOGenerator {
     public function compile($path = '') {
         return false;
     }
@@ -100,6 +100,7 @@ class xPDOGenerator_mysql extends xPDOGenerator {
         //read list of tables
         $dbname= $this->manager->xpdo->escape($this->manager->xpdo->config['dbname']);
         $tableLike= ($tablePrefix && $restrictPrefix) ? " LIKE '{$tablePrefix}%'" : '';
+        /* @var PDOStatement $tablesStmt */
         $tablesStmt= $this->manager->xpdo->prepare("SHOW TABLES FROM {$dbname}{$tableLike}");
         $tablesStmt->execute();
         $tables= $tablesStmt->fetchAll(PDO::FETCH_NUM);
@@ -113,6 +114,7 @@ class xPDOGenerator_mysql extends xPDOGenerator {
             }
             $class= $this->getClassName($tableName);
             $extends= $baseClass;
+            /* @var PDOStatement $fieldsStmt */
             $fieldsStmt= $this->manager->xpdo->query('SHOW COLUMNS FROM ' . $this->manager->xpdo->escape($table[0]));
             if ($fieldsStmt) {
                 $fields= $fieldsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -164,6 +166,7 @@ class xPDOGenerator_mysql extends xPDOGenerator {
                 $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, 'Error retrieving columns for table ' .  $table[0]);
             }
             $whereClause= ($extends === 'xPDOSimpleObject' ? " WHERE `Key_name` != 'PRIMARY'" : '');
+            /* @var PDOStatement $indexesStmt */
             $indexesStmt= $this->manager->xpdo->query('SHOW INDEXES FROM ' . $this->manager->xpdo->escape($table[0]) . $whereClause);
             if ($indexesStmt) {
                 $indexes= $indexesStmt->fetchAll(PDO::FETCH_ASSOC);

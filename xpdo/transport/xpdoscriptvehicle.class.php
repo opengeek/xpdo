@@ -23,6 +23,9 @@
  * @package xpdo
  * @subpackage transport
  */
+namespace xPDO\transport;
+
+use xPDO\xPDO;
 
 /**
  * Represents an executable PHP script within an {@link xPDOTransport} package.

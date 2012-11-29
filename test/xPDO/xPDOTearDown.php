@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+
 /**
  * Tests related to cleaning up the test environment
  *

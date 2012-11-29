@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+
 /**
  * Tests related to basic xPDO methods
  *
@@ -40,13 +42,14 @@ class xPDOTest extends xPDOTestCase {
      */
     public function testCreateObjectContainer() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $result = array();
         try {
             $this->xpdo->getManager();
-            $result[] = $this->xpdo->manager->createObjectContainer('Person');
-            $result[] = $this->xpdo->manager->createObjectContainer('Phone');
-            $result[] = $this->xpdo->manager->createObjectContainer('PersonPhone');
-            $result[] = $this->xpdo->manager->createObjectContainer('BloodType');
-            $result[] = $this->xpdo->manager->createObjectContainer('Item');
+            $result[] = $this->xpdo->manager->createObjectContainer('sample\\Person');
+            $result[] = $this->xpdo->manager->createObjectContainer('sample\\Phone');
+            $result[] = $this->xpdo->manager->createObjectContainer('sample\\PersonPhone');
+            $result[] = $this->xpdo->manager->createObjectContainer('sample\\BloodType');
+            $result[] = $this->xpdo->manager->createObjectContainer('sample\\Item');
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
@@ -114,7 +117,7 @@ class xPDOTest extends xPDOTestCase {
     public function testGetManager() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $manager = $this->xpdo->getManager();
-        $success = is_object($manager) && $manager instanceof xPDOManager;
+        $success = is_object($manager) && $manager instanceof \xPDO\om\xPDOManager;
         $this->assertTrue($success,'xpdo->getManager did not return an xPDOManager instance.');
     }
 
@@ -124,7 +127,7 @@ class xPDOTest extends xPDOTestCase {
     public function testGetDriver() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $driver = $this->xpdo->getDriver();
-        $success = is_object($driver) && $driver instanceof xPDODriver;
+        $success = is_object($driver) && $driver instanceof \xPDO\om\xPDODriver;
         $this->assertTrue($success,'xpdo->getDriver did not return an xPDODriver instance.');
     }
 
@@ -134,7 +137,7 @@ class xPDOTest extends xPDOTestCase {
     public function testGetCacheManager() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $cacheManager = $this->xpdo->getCacheManager();
-        $success = is_object($cacheManager) && $cacheManager instanceof xPDOCacheManager;
+        $success = is_object($cacheManager) && $cacheManager instanceof \xPDO\cache\xPDOCacheManager;
         $this->assertTrue($success,'xpdo->getCacheManager did not return an xPDOCacheManager instance.');
     }
 
@@ -153,7 +156,7 @@ class xPDOTest extends xPDOTestCase {
     public function testNewQuery() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $criteria = $this->xpdo->newQuery('Person');
-        $success = is_object($criteria) && $criteria instanceof xPDOQuery;
+        $success = is_object($criteria) && $criteria instanceof \xPDO\om\xPDOQuery;
         $this->assertTrue($success);
     }
 
@@ -176,8 +179,8 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetAncestry() {
         return array(
-            array('Person',array('Person','xPDOSimpleObject','xPDOObject')),
-            array('Person',array('xPDOSimpleObject','xPDOObject'),false),
+            array('sample\\Person',array('sample\\Person','xPDO\\om\\xPDOSimpleObject','xPDO\\om\\xPDOObject')),
+            array('sample\\Person',array('xPDO\\om\\xPDOSimpleObject','xPDO\\om\\xPDOObject'),false),
         );
     }
 
@@ -200,20 +203,20 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetDescendants() {
         return array(
-            array('xPDOSimpleObject',array (
-              0 => 'Person',
-              1 => 'Phone',
-              2 => 'xPDOSample',
-              3 => 'Item',
+            array('xPDO\\om\\xPDOSimpleObject',array (
+              0 => 'sample\\Person',
+              1 => 'sample\\Phone',
+              2 => 'sample\\xPDOSample',
+              3 => 'sample\\Item',
             )),
-            array('xPDOObject',array (
-              0 => 'xPDOSimpleObject',
-              1 => 'PersonPhone',
-              2 => 'BloodType',
-              3 => 'Person',
-              4 => 'Phone',
-              5 => 'xPDOSample',
-              6 => 'Item',
+            array('xPDO\\om\\xPDOObject',array (
+              0 => 'xPDO\\om\\xPDOSimpleObject',
+              1 => 'sample\\PersonPhone',
+              2 => 'sample\\BloodType',
+              3 => 'sample\\Person',
+              4 => 'sample\\Phone',
+              5 => 'sample\\xPDOSample',
+              6 => 'sample\\Item',
             )),
         );
     }
@@ -227,26 +230,26 @@ class xPDOTest extends xPDOTestCase {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
     	$fields = array('id', 'first_name', 'last_name', 'middle_name', 'date_modified', 'dob', 'gender', 'blood_type', 'username', 'password', 'security_level');
         $correct = implode(', ', array_map(array($this->xpdo, 'escape'), $fields));
-        $columns = $this->xpdo->getSelectColumns('Person');
-        $this->assertEquals($columns,$correct);
+        $columns = $this->xpdo->getSelectColumns('sample\\Person');
+        $this->assertEquals($correct,$columns);
 
         $correct = implode(', ', array_map(array($this, 'prefixWithEscapedPersonAlias'), $fields));
-        $columns = $this->xpdo->getSelectColumns('Person','Person');
-        $this->assertEquals($columns,$correct);
+        $columns = $this->xpdo->getSelectColumns('sample\\Person','Person');
+        $this->assertEquals($correct,$columns);
 
         $correct = implode(', ', array_map(array($this, 'postfixWithEscapedTestAlias'), $fields));
-        $columns = $this->xpdo->getSelectColumns('Person','Person','test_');
-        $this->assertEquals($columns,$correct);
+        $columns = $this->xpdo->getSelectColumns('sample\\Person','Person','test_');
+        $this->assertEquals($correct,$columns);
 
         $includeColumns = array('dob','last_name','id');
         $correct = implode(', ', array_map(array($this->xpdo, 'escape'), $includeColumns));
-        $columns = $this->xpdo->getSelectColumns('Person','','',$includeColumns);
-        $this->assertEquals($columns,$correct);
+        $columns = $this->xpdo->getSelectColumns('sample\\Person','','',$includeColumns);
+        $this->assertEquals($correct,$columns);
         
         $excludeColumns = array('first_name','middle_name','dob','gender','security_level','blood_type');
         $correct = implode(', ', array_map(array($this->xpdo, 'escape'), array('id', 'last_name', 'date_modified', 'username', 'password')));
-        $columns = $this->xpdo->getSelectColumns('Person','','',$excludeColumns,true);
-        $this->assertEquals($columns,$correct);
+        $columns = $this->xpdo->getSelectColumns('sample\\Person','','',$excludeColumns,true);
+        $this->assertEquals($correct,$columns);
     }
     private function prefixWithEscapedPersonAlias($string) {
     	return $this->xpdo->escape('Person') . '.' . $this->xpdo->escape($string);
@@ -273,7 +276,7 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetPackage() {
         return array(
-            array('Person','sample'),
+            array('sample\\Person','sample'),
         );
     }
 
@@ -295,7 +298,7 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetTableMeta() {
         return array(
-            array('Person',array('engine' => 'MyISAM')),
+            array('sample\\Person',array('engine' => 'MyISAM')),
         );
     }
 
@@ -369,7 +372,7 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetFieldMeta() {
         return array(
-            array('Person'),
+            array('sample\\Person'),
         );
     }
 
@@ -391,9 +394,9 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetPK() {
         return array(
-            array('Person','id'),
-            array('Phone','id'),
-            array('PersonPhone',array('person' => 'person','phone' => 'phone')),
+            array('sample\\Person','id'),
+            array('sample\\Phone','id'),
+            array('sample\\PersonPhone',array('person' => 'person','phone' => 'phone')),
         );
     }
 
@@ -415,9 +418,9 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetPKType() {
         return array(
-            array('Person','integer'),
-            array('Phone','integer'),
-            array('PersonPhone',array('person' => 'integer','phone' => 'integer')),
+            array('sample\\Person','integer'),
+            array('sample\\Phone','integer'),
+            array('sample\\PersonPhone',array('person' => 'integer','phone' => 'integer')),
         );
     }
 
@@ -439,19 +442,19 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetAggregates() {
         return array(
-            array('Person',array(
+            array('sample\\Person',array(
                 'BloodType' => array(
-                    'class' => 'BloodType',
+                    'class' => 'sample\\BloodType',
                     'local' => 'blood_type',
                     'foreign' => 'type',
                     'cardinality' => 'one',
                     'owner' => 'foreign',
                 ),
             )),
-            array('Phone',array()),
-            array('PersonPhone',array (
+            array('sample\\Phone',array()),
+            array('sample\\PersonPhone',array (
                 'Person' => array(
-                    'class' => 'Person',
+                    'class' => 'sample\\Person',
                     'local' => 'person',
                     'foreign' => 'id',
                     'cardinality' => 'one',
@@ -479,28 +482,28 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetComposites() {
         return array(
-            array('Person',array(
+            array('sample\\Person',array(
               'PersonPhone' => array(
-                'class' => 'PersonPhone',
+                'class' => 'sample\\PersonPhone',
                 'local' => 'id',
                 'foreign' => 'person',
                 'cardinality' => 'many',
                 'owner' => 'local',
               ),
             )),
-            array('Phone',array(
+            array('sample\\Phone',array(
               'PersonPhone' => array(
-                'class' => 'PersonPhone',
+                'class' => 'sample\\PersonPhone',
                 'local' => 'id',
                 'foreign' => 'phone',
                 'cardinality' => 'many',
                 'owner' => 'local',
               ),
             )),
-            array('PersonPhone',array (
+            array('sample\\PersonPhone',array (
               'Phone' =>
               array (
-                'class' => 'Phone',
+                'class' => 'sample\\Phone',
                 'local' => 'phone',
                 'foreign' => 'id',
                 'cardinality' => 'one',
@@ -524,10 +527,10 @@ class xPDOTest extends xPDOTestCase {
     }
     public function providerGetGraph() {
         return array(
-            array('Person', 10, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
-            array('Person', 1, array('BloodType' => array(), 'PersonPhone' => array())),
-            array('Person', 0, array()),
-            array('Person', 1000, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
+            array('sample\\Person', 10, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
+            array('sample\\Person', 1, array('BloodType' => array(), 'PersonPhone' => array())),
+            array('sample\\Person', 0, array()),
+            array('sample\\Person', 1000, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
         );
     }
 
@@ -557,10 +560,10 @@ class xPDOTest extends xPDOTestCase {
         if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $results = array();
         try {
-            $results[] = ($this->xpdo->call('Item', 'callTest') === 'Item_' . $this->xpdo->getOption('dbtype'));
-            $results[] = ($this->xpdo->call('xPDOSample', 'callTest') === 'xPDOSample');
-            $results[] = ($this->xpdo->call('TransientDerivative', 'callTest', array(), true) === 'TransientDerivative');
-            $results[] = ($this->xpdo->call('Transient', 'callTest', array(), true) === 'Transient');
+            $results[] = ($this->xpdo->call('sample\\Item', 'callTest') === 'Item_' . $this->xpdo->getOption('dbtype'));
+            $results[] = ($this->xpdo->call('sample\\xPDOSample', 'callTest') === 'xPDOSample');
+            $results[] = ($this->xpdo->call('sample\\TransientDerivative', 'callTest', array(), true) === 'TransientDerivative');
+            $results[] = ($this->xpdo->call('sample\\Transient', 'callTest', array(), true) === 'Transient');
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
@@ -572,13 +575,14 @@ class xPDOTest extends xPDOTestCase {
      */
     public function testRemoveObjectContainer() {
         if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $result = array();
         try {
             $this->xpdo->getManager();
-            $result[] = $this->xpdo->manager->removeObjectContainer('Person');
-            $result[] = $this->xpdo->manager->removeObjectContainer('Phone');
-            $result[] = $this->xpdo->manager->removeObjectContainer('PersonPhone');
-            $result[] = $this->xpdo->manager->removeObjectContainer('BloodType');
-            $result[] = $this->xpdo->manager->removeObjectContainer('Item');
+            $result[] = $this->xpdo->manager->removeObjectContainer('sample\\Person');
+            $result[] = $this->xpdo->manager->removeObjectContainer('sample\\Phone');
+            $result[] = $this->xpdo->manager->removeObjectContainer('sample\\PersonPhone');
+            $result[] = $this->xpdo->manager->removeObjectContainer('sample\\BloodType');
+            $result[] = $this->xpdo->manager->removeObjectContainer('sample\\Item');
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }

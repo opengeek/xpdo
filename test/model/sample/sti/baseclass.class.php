@@ -1,2 +1,4 @@
 <?php
-class baseClass extends xPDOSimpleObject {}
+namespace sample\sti;
+
+class baseClass extends \xPDO\om\xPDOSimpleObject {}

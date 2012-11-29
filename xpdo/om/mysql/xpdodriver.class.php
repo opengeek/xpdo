@@ -24,11 +24,9 @@
  * @package xpdo
  * @subpackage om.mysql
  */
+namespace xPDO\om\mysql;
 
-/**
- * Include the parent {@link xPDODriver} class.
- */
-require_once (dirname(dirname(__FILE__)) . '/xpdodriver.class.php');
+use xPDO\xPDO;
 
 /**
  * Provides mysql driver abstraction for an xPDO instance.
@@ -40,7 +38,7 @@ require_once (dirname(dirname(__FILE__)) . '/xpdodriver.class.php');
  * @package xpdo
  * @subpackage om.mysql
  */
-class xPDODriver_mysql extends xPDODriver {
+class xPDODriver extends \xPDO\om\xPDODriver {
     public $quoteChar = "'";
     public $escapeOpenChar = '`';
     public $escapeCloseChar = '`';

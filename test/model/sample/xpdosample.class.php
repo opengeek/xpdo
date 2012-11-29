@@ -4,6 +4,7 @@
  *
  * @package sample
  */
+namespace sample;
 
 /**
  * Represents a Sample xPDO class with various row types for testing purposes.
@@ -11,7 +12,7 @@
  * @see xpdosample.map.inc.php
  * @package sample
  */
-class xPDOSample extends xPDOSimpleObject {
+class xPDOSample extends \xPDO\om\xPDOSimpleObject {
     public static function callTest() {
         return 'xPDOSample';
     }

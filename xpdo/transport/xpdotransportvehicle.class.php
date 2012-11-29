@@ -23,6 +23,9 @@
  * @package xpdo
  * @subpackage transport
  */
+namespace xPDO\transport;
+
+use xPDO\xPDO;
 
 /**
  * Represents an xPDOTransport embedded within an {@link xPDOTransport} package.
@@ -35,6 +38,8 @@ class xPDOTransportVehicle extends xPDOVehicle {
 
     /**
      * Copies the transport into the vehicle and transforms the payload for storage.
+     *
+     * @param xPDOTransport $transport
      */
     protected function _compilePayload(& $transport) {
         parent :: _compilePayload($transport);

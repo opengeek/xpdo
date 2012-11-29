@@ -1,2 +1,4 @@
 <?php
-class BloodType extends xPDOObject {}
+namespace sample;
+
+class BloodType extends \xPDO\om\xPDOObject {}

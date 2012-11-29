@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+
 /**
  * Tests related to having statements.
  *
@@ -75,9 +77,11 @@ class xPDOQueryHavingTest extends xPDOTestCase {
             $criteria->groupby('name');
             $criteria->groupby('color');
             $criteria->having($having);
-            $result = $this->xpdo->getCollection('Item',$criteria);
-            if (is_array($result) && !empty($result)) {
-                foreach ($result as $r) { $result = $r; break; }
+            $results = $this->xpdo->getCollection('Item',$criteria);
+            if (is_array($results) && !empty($results)) {
+                /* @var \sample\Item $result */
+                $result = null;
+                foreach ($results as $r) { $result = $r; break; }
                 $name = $result->get('name');
                 $this->assertEquals($nameOfFirst,$name,'xPDOQuery: Having clause did not return expected result, returned `'.$name.'` instead.');
             } else {
@@ -111,6 +115,7 @@ class xPDOQueryHavingTest extends xPDOTestCase {
             $criteria->having($having);
             $result = $this->xpdo->getCollection('Item',$criteria);
             if (is_array($result) && !empty($result)) {
+                /* @var \sample\Item $match */
                 $match = null;
                 foreach ($result as $r) { $match = $r; break; }
                 $name = $match->get('name');
@@ -149,9 +154,11 @@ class xPDOQueryHavingTest extends xPDOTestCase {
             $criteria->groupby('color');
             $criteria->having($having);
             $criteria->limit($limit,$start);
-            $result = $this->xpdo->getCollection('Item',$criteria);
-            if (is_array($result) && !empty($result)) {
-                foreach ($result as $r) { $result = $r; break; }
+            $results = $this->xpdo->getCollection('Item',$criteria);
+            if (is_array($results) && !empty($results)) {
+                /* @var \sample\Item $result */
+                $result = null;
+                foreach ($results as $r) { $result = $r; break; }
                 $name = $result->get('name');
                 $this->assertEquals($nameOfFirst,$name,'xPDOQuery: Having did not return expected result `'.$nameOfFirst.'`, returned `'.$name.'` instead: '.$criteria->toSql());
             } else {

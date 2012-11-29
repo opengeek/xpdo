@@ -19,6 +19,10 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+use xPDO\om\xPDOQuery;
+use xPDO\om\xPDOQueryCondition;
+
 /**
  * Tests related to the xPDOQuery class.
  *
@@ -119,7 +123,8 @@ class xPDOQueryTest extends xPDOTestCase {
             'first_name' => 'Johnathon',
             'last_name' => 'Doe',
         );
-
+        $criteria = null;
+        $person = null;
         try {
             $criteria = $this->xpdo->newQuery('Person');
             $criteria->where($where,xPDOQuery::SQL_AND,null,0);
@@ -491,20 +496,23 @@ class xPDOQueryTest extends xPDOTestCase {
      */
     public function testSortBy($sortBy,$sortDir,$resultColumn,$resultValue) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        /* @var \sample\Person $result */
+        $result = null;
+        $success = false;
         try {
             $criteria = $this->xpdo->newQuery('Person');
             $criteria->sortby($sortBy,$sortDir);
             $people = $this->xpdo->getCollection('Person',$criteria);
+            foreach ($people as $person) {
+                $result = $person;
+                break;
+            }
+
+            $success = $result->get($resultColumn) == $resultValue;
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
 
-        foreach ($people as $person) {
-            $result = $person;
-            break;
-        }
-
-        $success = $result->get($resultColumn) == $resultValue;
         $this->assertTrue($success,'xPDOQuery: Sortby clause returned incorrect result.');
     }
     /**
@@ -526,6 +534,7 @@ class xPDOQueryTest extends xPDOTestCase {
      */
     public function testLimit($limit,$shouldEqual) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $result = array();
         try {
             $criteria = $this->xpdo->newQuery('Person');
             $criteria->limit($limit);

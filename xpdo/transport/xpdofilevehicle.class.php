@@ -23,6 +23,9 @@
  * @package xpdo
  * @subpackage transport
  */
+namespace xPDO\transport;
+
+use xPDO\xPDO;
 
 /**
  * Represents an individual file set within an {@link xPDOTransport} package.

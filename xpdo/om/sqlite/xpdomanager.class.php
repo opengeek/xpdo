@@ -24,11 +24,11 @@
  * @package xpdo
  * @subpackage om.sqlite
  */
+namespace xPDO\om\sqlite;
 
-/**
- * Include the parent {@link xPDOManager} class.
- */
-require_once (dirname(dirname(__FILE__)) . '/xpdomanager.class.php');
+use Exception;
+use PDO;
+use xPDO\xPDO;
 
 /**
  * Provides SQLite data source management for an xPDO instance.
@@ -41,7 +41,7 @@ require_once (dirname(dirname(__FILE__)) . '/xpdomanager.class.php');
  * @package xpdo
  * @subpackage om.sqlite
  */
-class xPDOManager_sqlite extends xPDOManager {
+class xPDOManager extends \xPDO\om\xPDOManager {
     public function createSourceContainer($dsnArray = null, $username= null, $password= null, $containerOptions= array ()) {
         $created = false;
         if ($this->xpdo->getConnection(array(xPDO::OPT_CONN_MUTABLE => true))) {

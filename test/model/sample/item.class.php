@@ -1,5 +1,7 @@
 <?php
-class Item extends xPDOSimpleObject {
+namespace sample;
+
+class Item extends \xPDO\om\xPDOSimpleObject {
     public static function callTest() {
         return 'Item';
     }

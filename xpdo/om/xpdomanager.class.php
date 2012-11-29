@@ -24,6 +24,10 @@
  * @package xpdo
  * @subpackage om
  */
+namespace xPDO\om;
+
+use xPDO\xPDO;
+use xPDO\transport\xPDOTransport;
 
 /**
  * Provides data source management for an xPDO instance.
@@ -57,6 +61,7 @@ abstract class xPDOManager {
      * Get a xPDOManager instance.
      *
      * @param object $xpdo A reference to a specific modDataSource instance.
+     * @return xPDOManager
      */
     public function __construct(& $xpdo) {
         if ($xpdo !== null && $xpdo instanceof xPDO) {
@@ -187,13 +192,10 @@ abstract class xPDOManager {
      *
      * @return xPDOGenerator A generator class for this manager.
      */
-    public function getGenerator() {
+    public function &getGenerator() {
         if ($this->generator === null || !$this->generator instanceof xPDOGenerator) {
-            $loaded= include_once(XPDO_CORE_PATH . 'om/' . $this->xpdo->config['dbtype'] . '/xpdogenerator.class.php');
-            if ($loaded) {
-                $generatorClass = 'xPDOGenerator_' . $this->xpdo->config['dbtype'];
-                $this->generator= new $generatorClass ($this);
-            }
+            $generatorClass = "\\xPDO\\om\\{$this->xpdo->config['dbtype']}\\xPDOGenerator";
+            $this->generator= new $generatorClass($this);
             if ($this->generator === null || !$this->generator instanceof xPDOGenerator) {
                 $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not load xPDOGenerator [{$generatorClass}] class.");
             }
@@ -203,14 +205,17 @@ abstract class xPDOManager {
 
     /**
      * Gets a data transport mechanism for this xPDOManager instance.
+     *
+     * @return xPDOTransport
      */
-    public function getTransport() {
+    public function &getTransport() {
         if ($this->transport === null || !$this->transport instanceof xPDOTransport) {
-            if (!isset($this->xpdo->config['xPDOTransport.class']) || !$transportClass= $this->xpdo->loadClass($this->xpdo->config['xPDOTransport.class'], '', false, true)) {
-                $transportClass= $this->xpdo->loadClass('transport.xPDOTransport', XPDO_CORE_PATH, true, true);
+            $transportClass= "\\xPDO\\transport\\xPDOTransport";
+            if (!empty($this->xpdo->config['xPDOTransport.class'])) {
+                $transportClass= $this->xpdo->config['xPDOTransport.class'];
             }
             if ($transportClass) {
-                $this->transport= new $transportClass ($this);
+                $this->transport= new $transportClass($this);
             }
             if ($this->transport === null || !$this->transport instanceof xPDOTransport) {
                 $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not load xPDOTransport [{$transportClass}] class.");

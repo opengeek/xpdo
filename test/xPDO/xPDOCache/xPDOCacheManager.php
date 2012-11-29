@@ -19,6 +19,7 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
 
 /**
  * Tests related to basic xPDOCacheManager methods

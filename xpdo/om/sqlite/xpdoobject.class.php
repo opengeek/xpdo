@@ -19,35 +19,37 @@
  */
 
 /**
- * Contains a derivative of the xPDOObject class for SQLite.
+ * Contains a trait for the xPDOObject class for SQLite.
  *
- * This file contains the base persistent object classes for SQLite, which your
- * user-defined classes will extend when implementing an xPDO object model
+ * This file contains a trait defining overrides to the xPDOObject class for SQLite,
+ * which your user-defined classes will use when implementing an xPDO object model
  * targeted at the SQLite platform.
  *
  * @package xpdo
  * @subpackage om.sqlite
  */
+namespace xPDO\om\sqlite;
 
-if (!class_exists('xPDOObject')) {
-    /** Include the parent {@link xPDOObject} class. */
-    include_once (strtr(realpath(dirname(__FILE__)), '\\', '/') . '/../xpdoobject.class.php');
+use xPDO\xPDO;
+
+/**
+ * Implements overrides to the base xPDOObject class for SQLite.
+ *
+ * @package xpdo
+ * @subpackage om.sqlite
+ */
+trait xPDOObject {
+    /**
+     * Register the map for this class in an xPDO instance.
+     *
+     * @param \xPDO\xPDO $xpdo
+     */
+    public static function map(xPDO &$xpdo) {
+        $xpdo->map['xPDO\\om\\xPDOObject'] = $xpdo->map[__CLASS__] = array(
+            'table' => null,
+            'fields' => array(),
+            'fieldMeta' => array(),
+            'indexes' => array()
+        );
+    }
 }
-
-/**
- * Implements extensions to the base xPDOObject class for SQLite.
- *
- * {@inheritdoc}
- *
- * @package xpdo
- * @subpackage om.sqlite
- */
-class xPDOObject_sqlite extends xPDOObject {}
-
-/**
- * Extend this abstract class to define a class having an integer primary key.
- *
- * @package xpdo
- * @subpackage om.sqlite
- */
-class xPDOSimpleObject_sqlite extends xPDOSimpleObject {}

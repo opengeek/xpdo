@@ -19,6 +19,8 @@
  *
  * @package xpdo-test
  */
+use xPDO\xPDO;
+
 /**
  * Tests related to setting up the test environment
  *
@@ -42,6 +44,7 @@ class xPDOSetUpTest extends PHPUnit_Framework_TestCase {
 
     public function testInitialize() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        /* @var \xPDO\xPDO $xpdo */
         $xpdo = xPDOTestHarness::getInstance(true);
         if (is_object($xpdo)) {
             $response = $xpdo->getManager()->removeSourceContainer(xPDO::parseDSN(xPDOTestHarness::$properties[xPDOTestHarness::$properties['xpdo_driver'] . '_string_dsn_test']));

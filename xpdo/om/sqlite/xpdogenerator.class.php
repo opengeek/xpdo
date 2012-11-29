@@ -24,11 +24,11 @@
  * @package xpdo
  * @subpackage om.sqlite
  */
+namespace xPDO\om\sqlite;
 
-/**
- * Include the parent {@link xPDOGenerator} class.
- */
-include_once (dirname(dirname(__FILE__)) . '/xpdogenerator.class.php');
+use PDO;
+use PDOStatement;
+use xPDO\xPDO;
 
 /**
  * An extension for generating {@link xPDOObject} class and map files for SQLite.
@@ -40,7 +40,7 @@ include_once (dirname(dirname(__FILE__)) . '/xpdogenerator.class.php');
  * @package xpdo
  * @subpackage om.sqlite
  */
-class xPDOGenerator_sqlite extends xPDOGenerator {
+class xPDOGenerator extends \xPDO\om\xPDOGenerator {
     public function compile($path = '') {
         return false;
     }

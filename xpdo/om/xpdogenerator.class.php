@@ -24,6 +24,7 @@
  * @package xpdo
  * @subpackage om
  */
+namespace xPDO\om;
 
 /**
  * A service for reverse and forward engineering xPDO domain models.
@@ -43,10 +44,6 @@ abstract class xPDOGenerator {
      * generator.
      */
     public $manager= null;
-    /**
-     * @var xPDOSchemaManager $schemaManager
-     */
-    public $schemaManager= null;
     /**
      * @var string $outputDir The absolute path to output the class and map
      * files to.
@@ -97,7 +94,7 @@ abstract class xPDOGenerator {
      */
     public $map= array ();
     /**
-     * @var SimpleXMLElement
+     * @var \SimpleXMLElement
      */
     public $schema= null;
 
@@ -181,7 +178,7 @@ abstract class xPDOGenerator {
     abstract public function getIndex($index);
 
     /**
-     * Parses an XPDO XML schema and generates classes and map files from it.
+     * Parses an xPDO XML schema and generates classes and map files from it.
      *
      * Requires SimpleXML for parsing an XML schema.
      *
@@ -196,19 +193,19 @@ abstract class xPDOGenerator {
         $this->schemaFile= $schemaFile;
         $this->classTemplate= $this->getClassTemplate();
         if (!is_file($schemaFile)) {
-            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not find specified XML schema file {$schemaFile}");
+            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not find specified XML schema file {$schemaFile}");
             return false;
         }
 
-        $this->schema = new SimpleXMLElement($schemaFile, 0, true);
+        $this->schema = new \SimpleXMLElement($schemaFile, 0, true);
         if (isset($this->schema)) {
             foreach ($this->schema->attributes() as $attributeKey => $attribute) {
-                /** @var SimpleXMLElement $attribute */
+                /** @var \SimpleXMLElement $attribute */
                 $this->model[$attributeKey] = (string) $attribute;
             }
             if (isset($this->schema->object)) {
                 foreach ($this->schema->object as $object) {
-                    /** @var SimpleXMLElement $object */
+                    /** @var \SimpleXMLElement $object */
                     $class = (string) $object['class'];
                     $extends = isset($object['extends']) ? (string) $object['extends'] : $this->model['baseClass'];
                     $this->classes[$class] = array('extends' => $extends);
@@ -437,10 +434,10 @@ abstract class xPDOGenerator {
                     }
                 }
             } else {
-                $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Schema {$schemaFile} contains no valid object elements.");
+                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Schema {$schemaFile} contains no valid object elements.");
             }
         } else {
-            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not read schema from {$schemaFile}.");
+            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not read schema from {$schemaFile}.");
         }
 
         $om_path= XPDO_CORE_PATH . 'om/';
@@ -472,7 +469,7 @@ abstract class xPDOGenerator {
             $newClassGeneration= true;
             if ($this->manager->xpdo->getCacheManager()) {
                 if (!$this->manager->xpdo->cacheManager->writeTree($path)) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
+                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
                     return false;
                 }
             }
@@ -483,7 +480,7 @@ abstract class xPDOGenerator {
             $newPlatformGeneration= true;
             if ($this->manager->xpdo->getCacheManager()) {
                 if (!$this->manager->xpdo->cacheManager->writeTree($ppath)) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not create platform subdirectory {$ppath}");
+                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not create platform subdirectory {$ppath}");
                     return false;
                 }
             }
@@ -522,19 +519,19 @@ abstract class xPDOGenerator {
                 if (!file_exists($fileName)) {
                     if ($file= @ fopen($fileName, 'wb')) {
                         if (!fwrite($file, $fileContent)) {
-                            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
+                            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
                         }
                         $newClass= true;
                         @fclose($file);
                     } else {
-                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
+                        $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
                     }
                 } else {
                     $newClass= false;
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}; file already exists.\nMove existing class files to regenerate them.");
+                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}; file already exists.\nMove existing class files to regenerate them.");
                 }
             } else {
-                $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
+                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
             }
             $fileContent= str_replace(array_keys($replaceVars), array_values($replaceVars), $this->getClassPlatformTemplate($platform));
             if (is_dir($ppath)) {
@@ -542,18 +539,18 @@ abstract class xPDOGenerator {
                 if (!file_exists($fileName)) {
                     if ($file= @ fopen($fileName, 'wb')) {
                         if (!fwrite($file, $fileContent)) {
-                            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
+                            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
                         }
                         @fclose($file);
                     } else {
-                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
+                        $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
                     }
                 } else {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}; file already exists.\nMove existing class files to regenerate them.");
-                    if ($newClassGeneration || $newClass) $this->manager->xpdo->log(xPDO::LOG_LEVEL_WARN, "IMPORTANT: {$fileName} already exists but you appear to have generated classes with an older xPDO version.  You need to edit your class definition in this file to extend {$className} rather than {$classDef['extends']}.");
+                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}; file already exists.\nMove existing class files to regenerate them.");
+                    if ($newClassGeneration || $newClass) $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_WARN, "IMPORTANT: {$fileName} already exists but you appear to have generated classes with an older xPDO version.  You need to edit your class definition in this file to extend {$className} rather than {$classDef['extends']}.");
                 }
             } else {
-                $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
+                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
             }
         }
     }
@@ -605,14 +602,14 @@ abstract class xPDOGenerator {
             if (is_dir($path)) {
                 if ($file= @ fopen($fileName, 'wb')) {
                     if (!fwrite($file, $fileContent)) {
-                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
+                        $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
                     }
                     fclose($file);
                 } else {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
+                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
                 }
             } else {
-                $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
+                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
             }
         }
     }
@@ -627,7 +624,7 @@ abstract class xPDOGenerator {
         if (!is_dir($path)) {
             if ($this->manager->xpdo->getCacheManager()) {
                 if (!$this->manager->xpdo->cacheManager->writeTree($path)) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
+                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
                     return false;
                 }
             }

@@ -17,6 +17,10 @@
  * xPDO; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
  * Suite 330, Boston, MA 02111-1307 USA
  */
+namespace xPDO\cache;
+
+use xPDO\xPDO;
+use Memcached;
 
 /**
  * Provides a memcached-powered xPDOCache implementation.
@@ -31,7 +35,7 @@ class xPDOMemCached extends xPDOCache {
 
     public function __construct(& $xpdo, $options = array()) {
         parent :: __construct($xpdo, $options);
-        if (class_exists('Memcached', true)) {
+        if (class_exists('Memcached')) {
             $this->memcached = new Memcached();
             if ($this->memcached) {
                 $servers = explode(',', $this->getOption($this->key . '_memcached_server', $options, $this->getOption('memcached_server', $options, 'localhost:11211')));

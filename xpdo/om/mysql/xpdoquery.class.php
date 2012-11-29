@@ -24,9 +24,10 @@
  * @package xpdo
  * @subpackage om.mysql
  */
+namespace xPDO\om\mysql;
 
-/** Include the base {@see xPDOQuery} class */
-include_once (dirname(dirname(__FILE__)) . '/xpdoquery.class.php');
+use PDO;
+use xPDO\xPDO;
 
 /**
  * An implementation of xPDOQuery for the MySQL database engine.
@@ -34,7 +35,7 @@ include_once (dirname(dirname(__FILE__)) . '/xpdoquery.class.php');
  * @package xpdo
  * @subpackage om.mysql
  */
-class xPDOQuery_mysql extends xPDOQuery {
+class xPDOQuery extends \xPDO\om\xPDOQuery {
     public function __construct(& $xpdo, $class, $criteria= null) {
         parent :: __construct($xpdo, $class, $criteria);
         $this->query['priority']= '';

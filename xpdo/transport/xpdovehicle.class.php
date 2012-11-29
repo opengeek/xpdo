@@ -23,6 +23,10 @@
  * @package xpdo
  * @subpackage transport
  */
+namespace xPDO\transport;
+
+use xPDO\xPDO;
+use xPDO\om\xPDOObject;
 
 /**
  * Represents an individual artifact within an {@link xPDOTransport} package.

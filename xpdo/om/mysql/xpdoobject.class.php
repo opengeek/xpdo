@@ -28,11 +28,9 @@
  * @package xpdo
  * @subpackage om.mysql
  */
+namespace xPDO\om\mysql;
 
-if (!class_exists('xPDOObject')) {
-    /** Include the parent {@link xPDOObject} class. */
-    include_once (dirname(dirname(__FILE__)) . '/xpdoobject.class.php');
-}
+use xPDO\xPDO;
 
 /**
  * Implements extensions to the base xPDOObject class for MySQL.
@@ -42,12 +40,18 @@ if (!class_exists('xPDOObject')) {
  * @package xpdo
  * @subpackage om.mysql
  */
-class xPDOObject_mysql extends xPDOObject {}
-
-/**
- * Extend this abstract class to define a class having an integer primary key.
- *
- * @package xpdo
- * @subpackage om.mysql
- */
-class xPDOSimpleObject_mysql extends xPDOSimpleObject {}
+trait xPDOObject {
+    /**
+     * Register the map for this class in an xPDO instance.
+     *
+     * @param \xPDO\xPDO $xpdo
+     */
+    public static function map(xPDO &$xpdo) {
+        $xpdo->map['xPDO\\om\\xPDOObject'] = $xpdo->map[__CLASS__] = array(
+            'table' => null,
+            'fields' => array(),
+            'fieldMeta' => array(),
+            'indexes' => array()
+        );
+    }
+}

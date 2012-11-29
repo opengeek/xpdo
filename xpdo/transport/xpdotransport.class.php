@@ -24,6 +24,11 @@
  * @package xpdo
  * @subpackage transport
  */
+namespace xPDO\transport;
+
+use xPDO\xPDO;
+use xPDO\cache\xPDOCacheManager;
+use xPDO\compression\xPDOZip;
 
 /**
  * Represents xPDOObject and related data in a serialized format for exchange.
@@ -88,11 +93,9 @@ class xPDOTransport {
     const ARCHIVE_WITH_PCLZIP = 1;
     const ARCHIVE_WITH_ZIPARCHIVE = 2;
     /**
-     * An {@link xPDO} reference controlling this transport instance.
-     * @var xPDO
-     * @access public
+     * @var xPDO $xpdo
      */
-    public $xpdo= null;
+    public $xpdo;
     /**
      * A unique signature to identify the package.
      * @var string
@@ -175,8 +178,8 @@ class xPDOTransport {
      * Compares two package versions by signature.
      *
      * @static
-     * @param $signature1 A package signature.
-     * @param $signature2 Another package signature to compare.
+     * @param string $signature1 A package signature.
+     * @param string $signature2 Another package signature to compare.
      * @return bool|int Returns -1 if the first version is lower than the second, 0 if they
      * are equal, and 1 if the second is lower if the package names in the provided
      * signatures are equal; otherwise returns false.
@@ -337,6 +340,7 @@ class xPDOTransport {
             if (empty($vehiclePackage)) $vehiclePackage = $attributes['vehicle_package'] = 'transport';
             if (empty($vehicleClass)) $vehicleClass = $attributes['vehicle_class'] = 'xPDOObjectVehicle';
             if ($className = $this->xpdo->loadClass("{$vehiclePackage}.{$vehicleClass}", $vehiclePackagePath, true, true)) {
+                /* @var xPDOVehicle $vehicle */
                 $vehicle = new $className();
                 $vehicle->put($this, $artifact, $attributes);
                 if ($added= $vehicle->store($this)) {
@@ -395,7 +399,7 @@ class xPDOTransport {
                 }
             }
         } elseif (class_exists('PclZip') || include(XPDO_CORE_PATH . 'compression/pclzip.lib.php')) {
-            $archive = new PclZip($filename);
+            $archive = new \PclZip($filename);
             if ($archive) {
                 $packResults = $archive->create("{$path}{$source}", PCLZIP_OPT_REMOVE_PATH, "{$path}");
                 if ($packResults) {
@@ -423,6 +427,7 @@ class xPDOTransport {
         $written = false;
         if (!empty ($this->vehicles)) {
             if (!empty($this->attributes['setup-options']) && is_array($this->attributes['setup-options'])) {
+                /* @var xPDOCacheManager $cacheManager */
                 $cacheManager = $this->xpdo->getCacheManager();
                 $cacheManager->copyFile($this->attributes['setup-options']['source'],$this->path . $this->signature . '/setup-options.php');
 
@@ -455,6 +460,7 @@ class xPDOTransport {
         $written = false;
         if (!empty($this->_preserved)) {
             $content = var_export($this->_preserved, true);
+            /* @var xPDOCacheManager $cacheManager */
             $cacheManager = $this->xpdo->getCacheManager();
             if ($content && $cacheManager) {
                 $fileName = $this->path . $this->signature . '/preserved.php';
@@ -489,9 +495,9 @@ class xPDOTransport {
     /**
      * Register an xPDOVehicle with this transport instance.
      *
-     * @param xPDOVehicle &$vehicle A reference to the vehicle being registered.
+     * @param xPDOVehicle $vehicle A reference to the vehicle being registered.
      */
-    public function registerVehicle(& $vehicle) {
+    public function registerVehicle(&$vehicle) {
         $this->vehicles[] = $vehicle->register($this);
     }
 
@@ -519,6 +525,12 @@ class xPDOTransport {
 
     /**
      * Get an existing {@link xPDOTransport} instance.
+     *
+     * @param xPDO $xpdo
+     * @param string $source
+     * @param string $target
+     * @param int $state
+     * @return null|xPDOTransport
      */
     public static function retrieve(& $xpdo, $source, $target, $state= xPDOTransport::STATE_PACKED) {
         $instance= null;
@@ -569,7 +581,7 @@ class xPDOTransport {
      */
     public function store($location) {
         $stored= false;
-        if ($this->state === xPDOTransport::PACKED) {}
+        if ($this->state === xPDOTransport::STATE_PACKED) {}
         return $stored;
     }
 
@@ -621,7 +633,7 @@ class xPDOTransport {
                 $archive->close();
             }
         } elseif (class_exists('PclZip') || include(XPDO_CORE_PATH . 'compression/pclzip.lib.php')) {
-            $archive = new PclZip($from);
+            $archive = new \PclZip($from);
             if ($archive) {
                 $resources = $archive->extract(PCLZIP_OPT_PATH, $to);
             }
