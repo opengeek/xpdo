@@ -19,35 +19,37 @@
  */
 
 /**
- * Contains a derivative of the xPDOObject class for sqlsrv.
+ * Contains a trait for the xPDOObject class for sqlsrv.
  *
- * This file contains the base persistent object classes for sqlsrv, which your
- * user-defined classes will extend when implementing an xPDO object model
- * targeted at the MS SQL Server platform.
+ * This file contains a trait defining overrides to the xPDOObject class for sqlsrv,
+ * which your user-defined classes will use when implementing an xPDO object model
+ * targeted at the sqlsrv platform.
  *
  * @package xpdo
  * @subpackage om.sqlsrv
  */
+namespace xPDO\om\sqlsrv;
 
-if (!class_exists('xPDOObject')) {
-    /** Include the parent {@link xPDOObject} class. */
-    include_once (dirname(dirname(__FILE__)) . '/xpdoobject.class.php');
+use xPDO\xPDO;
+
+/**
+ * Implements overrides to the base xPDOObject class for SQLite.
+ *
+ * @package xpdo
+ * @subpackage om.sqlsrv
+ */
+trait xPDOObject {
+    /**
+     * Register the map for this class in an xPDO instance.
+     *
+     * @param \xPDO\xPDO $xpdo
+     */
+    public static function map(xPDO &$xpdo) {
+        $xpdo->map['xPDO\\om\\xPDOObject'] = $xpdo->map[__CLASS__] = array(
+            'table' => null,
+            'fields' => array(),
+            'fieldMeta' => array(),
+            'indexes' => array()
+        );
+    }
 }
-
-/**
- * Implements extensions to the base xPDOObject class for sqlsrv.
- *
- * {@inheritdoc}
- *
- * @package xpdo
- * @subpackage om.sqlsrv
- */
-class xPDOObject_sqlsrv extends xPDOObject {}
-
-/**
- * Extend this abstract class to define a class having an integer primary key.
- *
- * @package xpdo
- * @subpackage om.sqlsrv
- */
-class xPDOSimpleObject_sqlsrv extends xPDOSimpleObject {}

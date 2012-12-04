@@ -14,6 +14,4 @@ class xPDOSimpleObject extends xPDOObject {
         $driverClass = '\\xPDO\\om\\' . $xpdo->getOption('dbtype') . '\\xPDOSimpleObject';
         $driverClass::map($xpdo);
     }
-
-    public $id = null;
 }

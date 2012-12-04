@@ -24,9 +24,10 @@
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-
-/** Include the base {@see xPDOQuery} class */
-include_once (dirname(dirname(__FILE__)) . '/xpdoquery.class.php');
+namespace xPDO\om\sqlsrv;
+use PDO;
+use xPDO\xPDO;
+use xPDO\om\xPDOQueryCondition;
 
 /**
  * An implementation of xPDOQuery for the sqlsrv database driver.
@@ -34,7 +35,7 @@ include_once (dirname(dirname(__FILE__)) . '/xpdoquery.class.php');
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-class xPDOQuery_sqlsrv extends xPDOQuery {
+class xPDOQuery extends \xPDO\om\xPDOQuery {
     public function __construct(& $xpdo, $class, $criteria= null) {
         parent :: __construct($xpdo, $class, $criteria);
         $this->query['top']= 0;

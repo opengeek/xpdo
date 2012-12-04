@@ -190,33 +190,33 @@ class xPDOTest extends xPDOTestCase {
      * 
      * @dataProvider providerGetDescendants
      */
-    public function testGetDescendants($class,array $correct = array()) {
+    public function testGetDescendants($class, $expected) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
-        $derv = $this->xpdo->getDescendants($class);
-        $diff = array_diff($correct,$derv);
-        $diff2 = array_diff($derv,$correct);
-        $success = is_array($derv) && empty($diff) && empty($diff2);
-        $this->assertTrue($success);
+        array_walk($expected, function(&$value) {
+            $value = $this->xpdo->loadClass($value);
+        });
+        $actual = $this->xpdo->getDescendants($class);
+        $this->assertEquals($expected, $actual);
     }
     /**
      * Data provider for testGetDescendants
      */
     public function providerGetDescendants() {
         return array(
-            array('xPDO\\om\\xPDOSimpleObject',array (
-              0 => 'sample\\Person',
-              1 => 'sample\\Phone',
-              2 => 'sample\\xPDOSample',
-              3 => 'sample\\Item',
+            array("xPDO\\om\\xPDOSimpleObject",array (
+              0 => "sample\\Person",
+              1 => "sample\\Phone",
+              2 => "sample\\xPDOSample",
+              3 => "sample\\Item",
             )),
-            array('xPDO\\om\\xPDOObject',array (
-              0 => 'xPDO\\om\\xPDOSimpleObject',
-              1 => 'sample\\PersonPhone',
-              2 => 'sample\\BloodType',
-              3 => 'sample\\Person',
-              4 => 'sample\\Phone',
-              5 => 'sample\\xPDOSample',
-              6 => 'sample\\Item',
+            array("xPDO\\om\\xPDOObject",array (
+              0 => "xPDO\\om\\xPDOSimpleObject",
+              1 => "sample\\PersonPhone",
+              2 => "sample\\BloodType",
+              3 => "sample\\Person",
+              4 => "sample\\Phone",
+              5 => "sample\\xPDOSample",
+              6 => "sample\\Item",
             )),
         );
     }
@@ -298,7 +298,7 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetTableMeta() {
         return array(
-            array('sample\\Person',array('engine' => 'MyISAM')),
+            array('sample\\Person',array()),
         );
     }
 
@@ -442,19 +442,19 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetAggregates() {
         return array(
-            array('sample\\Person',array(
+            array('Person',array(
                 'BloodType' => array(
-                    'class' => 'sample\\BloodType',
+                    'class' => 'sample\BloodType',
                     'local' => 'blood_type',
                     'foreign' => 'type',
                     'cardinality' => 'one',
                     'owner' => 'foreign',
                 ),
             )),
-            array('sample\\Phone',array()),
-            array('sample\\PersonPhone',array (
+            array('Phone',array()),
+            array('PersonPhone',array (
                 'Person' => array(
-                    'class' => 'sample\\Person',
+                    'class' => 'sample\Person',
                     'local' => 'person',
                     'foreign' => 'id',
                     'cardinality' => 'one',
@@ -482,28 +482,28 @@ class xPDOTest extends xPDOTestCase {
      */
     public function providerGetComposites() {
         return array(
-            array('sample\\Person',array(
+            array('Person',array(
               'PersonPhone' => array(
-                'class' => 'sample\\PersonPhone',
+                'class' => 'sample\PersonPhone',
                 'local' => 'id',
                 'foreign' => 'person',
                 'cardinality' => 'many',
                 'owner' => 'local',
               ),
             )),
-            array('sample\\Phone',array(
+            array('Phone',array(
               'PersonPhone' => array(
-                'class' => 'sample\\PersonPhone',
+                'class' => 'sample\PersonPhone',
                 'local' => 'id',
                 'foreign' => 'phone',
                 'cardinality' => 'many',
                 'owner' => 'local',
               ),
             )),
-            array('sample\\PersonPhone',array (
+            array('PersonPhone',array (
               'Phone' =>
               array (
-                'class' => 'sample\\Phone',
+                'class' => 'sample\Phone',
                 'local' => 'phone',
                 'foreign' => 'id',
                 'cardinality' => 'one',
@@ -527,10 +527,10 @@ class xPDOTest extends xPDOTestCase {
     }
     public function providerGetGraph() {
         return array(
-            array('sample\\Person', 10, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
-            array('sample\\Person', 1, array('BloodType' => array(), 'PersonPhone' => array())),
-            array('sample\\Person', 0, array()),
-            array('sample\\Person', 1000, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
+            array('Person', 10, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
+            array('Person', 1, array('BloodType' => array(), 'PersonPhone' => array())),
+            array('Person', 0, array()),
+            array('Person', 1000, array('BloodType' => array(), 'PersonPhone' => array('Phone' => array()))),
         );
     }
 

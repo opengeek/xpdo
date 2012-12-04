@@ -24,11 +24,9 @@
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-
-/**
- * Include the parent {@link xPDOGenerator} class.
- */
-include_once (dirname(dirname(__FILE__)) . '/xpdogenerator.class.php');
+namespace xPDO\om\sqlsrv;
+use PDO;
+use xPDO\xPDO;
 
 /**
  * An extension for generating {@link xPDOObject} class and map files for sqlsrv.
@@ -40,7 +38,7 @@ include_once (dirname(dirname(__FILE__)) . '/xpdogenerator.class.php');
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-class xPDOGenerator_sqlsrv extends xPDOGenerator {
+class xPDOGenerator extends \xPDO\om\xPDOGenerator {
     public function compile($path = '') {
         return false;
     }
@@ -107,7 +105,7 @@ class xPDOGenerator_sqlsrv extends xPDOGenerator {
                 $pk = 0;
                 extract($field, EXTR_OVERWRITE);
                 $Field= $name;
-                $PhpType= $this->manager->getPhpType($type);
+                $PhpType= $this->manager->xpdo->driver->getPhpType($type);
                 $Null= ' null="' . ($notnull ? 'false' : 'true') . '"';
                 $Default= $this->getDefault($dflt_value);
                 $Extra= '';

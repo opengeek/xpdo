@@ -170,7 +170,8 @@ class xPDOClassLoader {
         $classExploded = explode(DIRECTORY_SEPARATOR, $fqClass);
         $diff = array_diff($this->_namespaceExploded, array_splice($classExploded, 0, count($this->_namespaceExploded)));
         if (empty($diff)) {
-            if (include $this->_path . $fqClass . $this->_fileExtension) {
+            $classFile = $this->_path . $fqClass . $this->_fileExtension;
+            if (is_readable($classFile) && include $classFile) {
                 if (is_callable(array($class, 'map'))) {
                     call_user_func_array(array($class, 'map'), array(&$this->_xpdo));
                 }
@@ -655,11 +656,13 @@ class xPDO {
      */
     public function getDescendants($className) {
         $descendants = array();
-        if (isset($this->classMap[$className])) {
-            $descendants = $this->classMap[$className];
-            if ($descendants) {
-                foreach ($descendants as $descendant) {
-                    $descendants = array_merge($descendants, $this->getDescendants($descendant));
+        if ($className = $this->loadClass($className)) {
+            if (isset($this->classMap[$className])) {
+                $descendants = $this->classMap[$className];
+                if ($descendants) {
+                    foreach ($descendants as $descendant) {
+                        $descendants = array_merge($descendants, $this->getDescendants($descendant));
+                    }
                 }
             }
         }
@@ -692,8 +695,8 @@ class xPDO {
         }
         $fqn= str_replace('.', '\\', $fqn);
         $pos= strrpos($fqn, '\\');
+        $class= $fqn;
         if ($pos === false) {
-            $class= $fqn;
             if (!$transient && array_key_exists('dbtype', $this->config)) {
                 $fqn= $this->config['dbtype'] . '\\' . $class;
             }
@@ -706,19 +709,30 @@ class xPDO {
                 $fqn= ($pos === 0 ? '\\' : '') . $namespace . '\\' . $this->config['dbtype'] . '\\' . $class;
             }
         }
-        if ($pos !== 0 && !$ignorePkg && !empty($this->package)) {
+        $included= class_exists($fqn) || trait_exists($fqn);
+        if (!$included && $pos !== 0 && !$ignorePkg && !empty($this->package)) {
             $pkgExploded = explode('\\', $this->package);
             if ($pkgExploded !== array_slice(explode('\\', ltrim($fqn, '\\')), 0, count($pkgExploded))) {
-                $fqn = "{$this->package}\\{$fqn}";
+                $included= class_exists($this->package . '\\' . $fqn) || trait_exists($this->package . '\\' . $fqn);
+                if ($included) {
+                    $fqn = "{$this->package}\\{$fqn}";
+                } else {
+                    foreach (array_keys($this->packages) as $package) {
+                        $pkgExploded = explode('\\', $package);
+                        if ($pkgExploded !== array_slice(explode('\\', ltrim($fqn, '\\')), 0, count($pkgExploded))) {
+                            $included= class_exists($package . '\\' . $fqn) || trait_exists($package . '\\' . $fqn);
+                            if ($included) {
+                                $fqn = "{$this->package}\\{$fqn}";
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-        } elseif ($pos === 0) {
-            $fqn = ltrim($fqn, '\\');
         }
-        // check if class exists
-        $included= class_exists($fqn);
         if (!$included) {
             $fqn= false;
-            $this->log(xPDO::LOG_LEVEL_ERROR, "Could not load class: {$fqn}");
+            $this->log(xPDO::LOG_LEVEL_ERROR, "Could not load class {$class} from {$fqn}");
         }
         return $fqn;
     }
@@ -1257,7 +1271,7 @@ class xPDO {
      */
     public function getTableName($className, $includeDb= false) {
         $table= null;
-        if ($className) {
+        if ($className = $this->loadClass($className)) {
             if (isset ($this->map[$className]['table'])) {
                 $table= $this->map[$className]['table'];
                 if (isset($this->map[$className]['package']) && isset($this->packages[$this->map[$className]['package']]['prefix'])) {
@@ -1430,7 +1444,7 @@ class xPDO {
      */
     public function getFieldMeta($className, $includeExtended = false) {
         $fieldMeta= array ();
-        if ($className) {
+        if ($className = $this->loadClass($className)) {
             if ($ancestry= $this->getAncestry($className)) {
                 for ($i= count($ancestry) - 1; $i >= 0; $i--) {
                     if (isset ($this->map[$ancestry[$i]]['fieldMeta'])) {
@@ -1461,7 +1475,7 @@ class xPDO {
      */
     public function getFieldAliases($className) {
         $fieldAliases= array ();
-        if ($className) {
+        if ($className = $this->loadClass($className)) {
             if ($ancestry= $this->getAncestry($className)) {
                 for ($i= count($ancestry) - 1; $i >= 0; $i--) {
                     if (isset ($this->map[$ancestry[$i]]['fieldAliases'])) {
@@ -1495,7 +1509,7 @@ class xPDO {
      */
     public function getValidationRules($className) {
         $rules= array();
-        if ($className) {
+        if ($className = $this->loadClass($className)) {
             if ($ancestry= $this->getAncestry($className)) {
                 for ($i= count($ancestry) - 1; $i >= 0; $i--) {
                     if (isset($this->map[$ancestry[$i]]['validation']['rules'])) {
@@ -1717,11 +1731,11 @@ class xPDO {
             $visitNested = array_merge($visited, array($className));
             $relations = array_merge($this->getAggregates($className), $this->getComposites($className));
             foreach ($relations as $alias => $relation) {
-                if (in_array($relation['class'], $visited)) {
+                if (in_array($this->loadClass($relation['class']), $visited)) {
                     continue;
                 }
                 $childGraph = array();
-                if ($depth > 0 && !in_array($relation['class'], $parents)) {
+                if ($depth > 0 && !in_array($this->loadClass($relation['class']), $parents)) {
                     $childGraph = $this->getGraph($relation['class'], $depth, $parentsNested, $visitNested);
                 }
                 $graph[$alias] = $childGraph;
@@ -1813,7 +1827,7 @@ class xPDO {
      */
     public function getModelVersion($className) {
         $version = '1.0';
-        if ($className && isset($this->map[$className]['version'])) {
+        if ($className = $this->loadClass($className) && isset($this->map[$className]['version'])) {
             $version= $this->map[$className]['version'];
         }
         return $version;

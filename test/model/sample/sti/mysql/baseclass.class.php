@@ -1,13 +1,16 @@
 <?php
 namespace sample\sti\mysql;
+use xPDO\xPDO;
 
-class baseClass extends \xPDO\om\mysql\xPDOSimpleObject {
-    public static function map() {
-        return array_merge(parent::map(), array (
-            'package' => 'sample.sti',
+class baseClass extends \sample\sti\baseClass {
+    use \xPDO\om\mysql\xPDOSimpleObject;
+    public static function map(xPDO &$xpdo) {
+        parent::map($xpdo);
+        $xpdo->map[__CLASS__] = array (
+            'package' => 'sample\\sti',
             'version' => '1.1',
             'table' => 'sti_objects',
-            'extends' => 'xPDOSimpleObject',
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
             'inherit' => 'single',
             'fields' =>
             array (
@@ -15,7 +18,7 @@ class baseClass extends \xPDO\om\mysql\xPDOSimpleObject {
                 'field2' => '',
                 'date_modified' => 'CURRENT_TIMESTAMP',
                 'fkey' => NULL,
-                'class_key' => 'baseClass',
+                'class_key' => 'sample\\sti\\baseClass',
             ),
             'fieldMeta' =>
             array (
@@ -57,7 +60,7 @@ class baseClass extends \xPDO\om\mysql\xPDOSimpleObject {
                     'precision' => '255',
                     'phptype' => 'string',
                     'null' => false,
-                    'default' => 'baseClass',
+                    'default' => 'sample\\sti\\baseClass',
                 ),
             ),
             'indexes' =>
@@ -81,7 +84,7 @@ class baseClass extends \xPDO\om\mysql\xPDOSimpleObject {
             array (
                 'relMany' =>
                 array (
-                    'class' => 'relClassMany',
+                    'class' => 'sample\\sti\\relClassMany',
                     'local' => 'id',
                     'foreign' => 'fkey',
                     'cardinality' => 'many',
@@ -92,13 +95,13 @@ class baseClass extends \xPDO\om\mysql\xPDOSimpleObject {
             array (
                 'relOne' =>
                 array (
-                    'class' => 'relClassOne',
+                    'class' => 'sample\\sti\\relClassOne',
                     'local' => 'fkey',
                     'foreign' => 'id',
                     'cardinality' => 'one',
                     'owner' => 'foreign',
                 ),
             ),
-        ));
+        );
     }
 }

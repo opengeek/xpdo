@@ -36,30 +36,30 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
         try {
             /* ensure we have clear data and identity sequences */
             $this->xpdo->getManager();
-            $this->xpdo->addPackage('sample.sti', xPDOTestHarness::$properties['xpdo_test_path'] . 'model/');
+            $this->xpdo->addPackage('sample\\sti', xPDOTestHarness::$properties['xpdo_test_path'] . 'model/');
 
-            $this->xpdo->manager->createObjectContainer('sti.baseClass');
-            $this->xpdo->manager->createObjectContainer('sti.relClassOne');
-            $this->xpdo->manager->createObjectContainer('sti.relClassMany');
+            $this->xpdo->manager->createObjectContainer('sti\\baseClass');
+            $this->xpdo->manager->createObjectContainer('sti\\relClassOne');
+            $this->xpdo->manager->createObjectContainer('sti\\relClassMany');
 
             /* add some various base and derivative objects */
-            $object= $this->xpdo->newObject('sti.baseClass');
+            $object= $this->xpdo->newObject('sti\\baseClass');
             $object->set('field1', 1);
             $object->set('field2', 'a string');
 
-            $relatedObject = $this->xpdo->newObject('sti.relClassOne');
+            $relatedObject = $this->xpdo->newObject('sti\\relClassOne');
             $relatedObject->fromArray(array(
                 'field1' => 123,
                 'field2' => 'alphanumeric',
             ));
             $object->addOne($relatedObject);
 
-            $relatedObjects[0] = $this->xpdo->newObject('sti.relClassMany');
+            $relatedObjects[0] = $this->xpdo->newObject('sti\\relClassMany');
             $relatedObjects[0]->fromArray(array(
                 'field1' => 'some text',
                 'field2' => true,
             ));
-            $relatedObjects[1] = $this->xpdo->newObject('sti.relClassMany');
+            $relatedObjects[1] = $this->xpdo->newObject('sti\\relClassMany');
             $relatedObjects[1]->fromArray(array(
                 'field1' => 'some different text',
                 'field2' => false,
@@ -69,23 +69,23 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
             $object->save();
 
             /* add some various base and derivative objects */
-            $object= $this->xpdo->newObject('sti.derivedClass');
+            $object= $this->xpdo->newObject('sti\\derivedClass');
             $object->set('field1', 2);
             $object->set('field2', 'a derived string');
 
-            $relatedObject = $this->xpdo->newObject('sti.relClassOne');
+            $relatedObject = $this->xpdo->newObject('sti\\relClassOne');
             $relatedObject->fromArray(array(
                 'field1' => 321,
                 'field2' => 'numericalpha',
             ));
             $object->addOne($relatedObject);
 
-            $relatedObjects[0] = $this->xpdo->newObject('sti.relClassMany');
+            $relatedObjects[0] = $this->xpdo->newObject('sti\\relClassMany');
             $relatedObjects[0]->fromArray(array(
                 'field1' => 'some derived text',
                 'field2' => true,
             ));
-            $relatedObjects[1] = $this->xpdo->newObject('sti.relClassMany');
+            $relatedObjects[1] = $this->xpdo->newObject('sti\\relClassMany');
             $relatedObjects[1]->fromArray(array(
                 'field1' => 'some different derived text',
                 'field2' => false,
@@ -95,23 +95,23 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
             $object->save();
 
             /* add some various base and derivative objects */
-            $object= $this->xpdo->newObject('sti.derivedClass2');
+            $object= $this->xpdo->newObject('sti\\derivedClass2');
             $object->set('field1', 3);
             $object->set('field2', 'another derived string');
 
-            $relatedObject = $this->xpdo->newObject('sti.relClassOne');
+            $relatedObject = $this->xpdo->newObject('sti\\relClassOne');
             $relatedObject->fromArray(array(
                 'field1' => 789,
                 'field2' => 'derived numericalpha',
             ));
             $object->addOne($relatedObject, 'relOne');
 
-            $relatedObjects[0] = $this->xpdo->newObject('sti.relClassMany');
+            $relatedObjects[0] = $this->xpdo->newObject('sti\\relClassMany');
             $relatedObjects[0]->fromArray(array(
                 'field1' => 'some double derived text',
                 'field2' => true,
             ));
-            $relatedObjects[1] = $this->xpdo->newObject('sti.relClassMany');
+            $relatedObjects[1] = $this->xpdo->newObject('sti\\relClassMany');
             $relatedObjects[1]->fromArray(array(
                 'field1' => 'some different double derived text',
                 'field2' => false,
@@ -130,9 +130,9 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
      */
     public function tearDown() {
         try {
-            $this->xpdo->manager->removeObjectContainer('sti.baseClass');
-            $this->xpdo->manager->removeObjectContainer('sti.relClassOne');
-			$this->xpdo->manager->removeObjectContainer('sti.relClassMany');
+            $this->xpdo->manager->removeObjectContainer('sti\\baseClass');
+            $this->xpdo->manager->removeObjectContainer('sti\\relClassOne');
+			$this->xpdo->manager->removeObjectContainer('sti\\relClassMany');
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
@@ -141,19 +141,31 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
 
     /**
      * Test getting the proper derived instance from getObject.
+     * @dataProvider providerGetDerivedObject
+     * @param string $class
+     * @param int|string|array $criteria
+     * @param string $expected
      */
-    public function testGetDerivedObject() {
+    public function testGetDerivedObject($class, $criteria, $expected) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
+        $object = null;
         try {
-            $baseObject = $this->xpdo->getObject('sti.baseClass', array('field1' => 1));
-            $derivedObject = $this->xpdo->getObject('sti.baseClass', array('field1' => 2));
-            $derivedObject2 = $this->xpdo->getObject('sti.baseClass', array('field1' => 3));
+            $object = $this->xpdo->getObject($class, $criteria);
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
-        $this->assertTrue($baseObject instanceof \sample\sti\baseClass && $baseObject->get('class_key') == 'sample\\sti\\baseClass', "Error getting base object of the appropriate class.");
-        $this->assertTrue($derivedObject instanceof \sample\sti\derivedClass && $derivedObject->get('class_key') == 'sample\\sti\\derivedClass', "Error getting derived object of the appropriate class.");
-        $this->assertTrue($derivedObject2 instanceof \sample\sti\derivedClass2 && $derivedObject2->get('class_key') == 'sample\\sti\\derivedClass2', "Error getting derived object of the appropriate class.");
+        $this->assertTrue($object instanceof $expected && $object->get('class_key') == $expected, "Error getting object of the appropriate class {$expected} from {$class}.");
+    }
+
+    /**
+     * Data provider for testGetDerivedObject
+     */
+    public function providerGetDerivedObject() {
+        return array(
+            array('sti\\baseClass', array('field1' => 1), 'sample\\sti\\baseClass'),
+            array('sti\\baseClass', array('field1' => 2), 'sample\\sti\\derivedClass'),
+            array('sti\\baseClass', array('field1' => 3), 'sample\\sti\\derivedClass2'),
+        );
     }
 
     /**
@@ -161,12 +173,12 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
      * @dataProvider providerGetSpecificDerivedObject
      * @param string $expectedClass A valid xPDO table class name derived from a base table class.
      */
-    public function testGetSpecificDerivedObject($expectedClass, $criteria) {
+    public function testGetSpecificDerivedObject($class, $criteria, $expectedClass) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $result = false;
         $realClass = '(none)';
         try {
-            $object = $this->xpdo->getObject("sti.{$expectedClass}", $criteria);
+            $object = $this->xpdo->getObject($class, $criteria);
             if ($object) {
                 $result = ($object instanceof $expectedClass && $object->get('class_key') == $expectedClass);
                 if ($result !== true) $realClass = $object->_class;
@@ -181,8 +193,10 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
      */
     public function providerGetSpecificDerivedObject() {
         return array(
-            array('derivedClass', array('field1' => 2)),
-            array('derivedClass2', array('field1' => 3))
+            array('sample\\sti\\derivedClass', array('field1' => 2), 'sample\\sti\\derivedClass'),
+            array('sample\\sti\\derivedClass2', array('field1' => 3), 'sample\\sti\\derivedClass2'),
+            array('sti\\derivedClass', array('field1' => 2), 'sample\\sti\\derivedClass'),
+            array('sti\\derivedClass2', array('field1' => 3), 'sample\\sti\\derivedClass2'),
         );
     }
 
@@ -192,7 +206,7 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     public function testGetDerivedCollection() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
-            $collection = $this->xpdo->getCollection('sti.baseClass');
+            $collection = $this->xpdo->getCollection('baseClass');
             /* @var \sample\sti\baseClass $object */
             foreach ($collection as $object) {
                 $result = false;
@@ -200,7 +214,7 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
                 switch ($object->get('field1')) {
                     case 1:
                         $expectedClass = 'sample\\sti\\baseClass';
-                        $result = ($object instanceof \sample\sti\baseClass && $object->get('class_key') == 'baseClass');
+                        $result = ($object instanceof \sample\sti\baseClass && $object->get('class_key') == 'sample\\sti\\baseClass');
                         break;
                     case 2:
                         $expectedClass = 'sample\\sti\\derivedClass';
@@ -226,7 +240,7 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     public function testGetSpecificDerivedCollection($expectedClass) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
-            $collection = $this->xpdo->getCollection("sti.{$expectedClass}");
+            $collection = $this->xpdo->getCollection("{$expectedClass}");
             /* @var \xPDO\om\xPDOObject $object */
             foreach ($collection as $object) {
                 $result = ($object instanceof $expectedClass && $object->get('class_key') == $expectedClass);
@@ -252,9 +266,9 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     public function testGetDerivedObjectGraph() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
-            $baseObject = $this->xpdo->getObjectGraph('sti.baseClass', '{"relOne":{},"relMany":{}}', array('field1' => 1));
-            $derivedObject = $this->xpdo->getObjectGraph('sti.baseClass', '{"relOne":{},"relMany":{}}', array('field1' => 2));
-            $derivedObject2 = $this->xpdo->getObjectGraph('sti.baseClass', '{"relOne":{},"relMany":{}}', array('field1' => 3));
+            $baseObject = $this->xpdo->getObjectGraph('baseClass', '{"relOne":{},"relMany":{}}', array('field1' => 1));
+            $derivedObject = $this->xpdo->getObjectGraph('baseClass', '{"relOne":{},"relMany":{}}', array('field1' => 2));
+            $derivedObject2 = $this->xpdo->getObjectGraph('baseClass', '{"relOne":{},"relMany":{}}', array('field1' => 3));
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
@@ -269,22 +283,22 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
     public function testGetDerivedCollectionGraph() {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         try {
-            $collection = $this->xpdo->getCollectionGraph('sti.baseClass', '{"relOne":{},"relMany":{}}');
+            $collection = $this->xpdo->getCollectionGraph('baseClass', '{"relOne":{},"relMany":{}}');
             /* @var \sample\sti\baseClass $object */
             foreach ($collection as $object) {
                 $result = false;
                 $expectedClass = '';
                 switch ($object->get('field1')) {
                     case 1:
-                        $expectedClass = 'baseClass';
+                        $expectedClass = 'sample\\sti\\baseClass';
                         $result = ($object instanceof \sample\sti\baseClass && $object->get('class_key') == 'sample\\sti\\baseClass');
                         break;
                     case 2:
-                        $expectedClass = 'derivedClass';
+                        $expectedClass = 'sample\\sti\\derivedClass';
                         $result = ($object instanceof \sample\sti\derivedClass && $object->get('class_key') == 'sample\\sti\\derivedClass');
                         break;
                     case 3:
-                        $expectedClass = 'derivedClass2';
+                        $expectedClass = 'sample\\sti\\derivedClass2';
                         $result = ($object instanceof \sample\sti\derivedClass2 && $object->get('class_key') == 'sample\\sti\\derivedClass2');
                         break;
                 }
@@ -307,7 +321,7 @@ class xPDOObjectSingleTableInheritanceTest extends xPDOTestCase {
         if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
         $result = false;
         try {
-            $object = $this->xpdo->getObject("sti.baseClass", $criteria);
+            $object = $this->xpdo->getObject("baseClass", $criteria);
             if ($object) {
                 while (list($key, $value) = each($update)) {
                     $object->set($key, $value);

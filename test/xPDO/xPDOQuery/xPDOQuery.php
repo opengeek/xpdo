@@ -142,7 +142,7 @@ class xPDOQueryTest extends xPDOTestCase {
         $this->assertTrue(is_object($conditions[0]) && $conditions[0] instanceof xPDOQueryCondition,'xPDOQuery->where(): Condition is not an xPDOQueryCondition type.');
 
         /* test for results */
-        $this->assertTrue(is_object($person) && $person instanceof Person,'xPDOQuery->where(): Query did not return correct results.');
+        $this->assertTrue(is_object($person) && $person instanceof \sample\Person,'xPDOQuery->where(): Query did not return correct results.');
     }
 
     /**

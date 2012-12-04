@@ -43,7 +43,7 @@ abstract class xPDOGenerator {
      * @var xPDOManager $manager A reference to the xPDOManager using this
      * generator.
      */
-    public $manager= null;
+    public $manager;
     /**
      * @var string $outputDir The absolute path to output the class and map
      * files to.

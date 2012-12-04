@@ -19,7 +19,7 @@ class xPDOSample extends \sample\xPDOSample {
             'package' => 'sample',
             'version' => '1.1',
             'table' => 'xpdosample',
-            'extends' => 'xPDOSimpleObject',
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
             'fields' =>
             array (
                 'parent' => 0,

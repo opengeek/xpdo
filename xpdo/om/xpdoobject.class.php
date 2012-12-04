@@ -320,7 +320,7 @@ class xPDOObject {
             $alias = $criteria;
             $actualClass = $className;
         } else {
-            $alias = $className;
+            $alias = array_slice(explode('\\', $className), -1)[0];
             $actualClass= $className;
         }
         if (isset ($row["{$alias}_class_key"])) {
@@ -353,10 +353,6 @@ class xPDOObject {
                 $rowPrefix= $className . '_';
             }
             $parentClass = $className;
-            $isSubPackage = strpos($className,'.');
-            if ($isSubPackage !== false) {
-                $parentClass = substr($className,$isSubPackage+1);
-            }
             if (!$instance instanceof $parentClass) {
                 $xpdo->log(xPDO::LOG_LEVEL_ERROR, "Instantiated a derived class {$actualClass} that is not a subclass of the requested class {$className}");
             }
@@ -634,13 +630,10 @@ class xPDOObject {
      */
     public function __construct(xPDO & $xpdo) {
         $this->xpdo= & $xpdo;
-        $this->_class= get_class($this);
-//        if (!isset($this->xpdo->map[$this->_class])) {
-//            static::map($this->xpdo);
-//        }
+        $this->_class= get_parent_class($this);
         $this->container= $xpdo->config['dbname'];
         $this->_package= $xpdo->getPackage($this->_class);
-        $this->_alias= $this->_class;
+        $this->_alias= array_slice(explode('\\', $this->_class), -1)[0];
         $this->_table= $xpdo->getTableName($this->_class);
         $this->_tableMeta= $xpdo->getTableMeta($this->_class);
         $this->_fields= $xpdo->getFields($this->_class);
@@ -2098,7 +2091,7 @@ class xPDOObject {
      */
     public function getValidator() {
         if (!is_object($this->_validator)) {
-            $validatorClass = $this->xpdo->loadClass('validation.xPDOValidator', XPDO_CORE_PATH, true, true);
+            $validatorClass = '\\xPDO\\validation\\xPDOValidator';
             if ($derivedClass = $this->getOption(xPDO::OPT_VALIDATOR_CLASS, null, '')) {
                 if ($derivedClass = $this->xpdo->loadClass($derivedClass, '', false, true)) {
                     $validatorClass = $derivedClass;

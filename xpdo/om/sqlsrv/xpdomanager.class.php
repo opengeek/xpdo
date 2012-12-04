@@ -24,11 +24,11 @@
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-
-/**
- * Include the parent {@link xPDOManager} class.
- */
-require_once (dirname(dirname(__FILE__)) . '/xpdomanager.class.php');
+namespace xPDO\om\sqlsrv;
+use Exception;
+use PDO;
+use PDOException;
+use xPDO\xPDO;
 
 /**
  * Provides sqlsrv data source management for an xPDO instance.
@@ -41,7 +41,7 @@ require_once (dirname(dirname(__FILE__)) . '/xpdomanager.class.php');
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-class xPDOManager_sqlsrv extends xPDOManager {
+class xPDOManager extends \xPDO\om\xPDOManager {
     public function createSourceContainer($dsnArray = null, $username= null, $password= null, $containerOptions= array ()) {
         $created = false;
         if ($this->xpdo->getConnection(array(xPDO::OPT_CONN_MUTABLE => true))) {

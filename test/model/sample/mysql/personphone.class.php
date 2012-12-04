@@ -75,7 +75,7 @@ class PersonPhone extends \sample\PersonPhone {
             array (
                 'Phone' =>
                 array (
-                    'class' => 'Phone',
+                    'class' => 'sample\\Phone',
                     'local' => 'phone',
                     'foreign' => 'id',
                     'cardinality' => 'one',
@@ -86,7 +86,7 @@ class PersonPhone extends \sample\PersonPhone {
             array (
                 'Person' =>
                 array (
-                    'class' => 'Person',
+                    'class' => 'sample\\Person',
                     'local' => 'person',
                     'foreign' => 'id',
                     'cardinality' => 'one',

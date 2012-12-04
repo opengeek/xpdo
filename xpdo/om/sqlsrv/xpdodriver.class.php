@@ -24,11 +24,8 @@
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-
-/**
- * Include the parent {@link xPDODriver} class.
- */
-require_once (dirname(dirname(__FILE__)) . '/xpdodriver.class.php');
+namespace xPDO\om\sqlsrv;
+use xPDO\xPDO;
 
 /**
  * Provides sqlsrv driver abstraction for an xPDO instance.
@@ -40,7 +37,7 @@ require_once (dirname(dirname(__FILE__)) . '/xpdodriver.class.php');
  * @package xpdo
  * @subpackage om.sqlsrv
  */
-class xPDODriver_sqlsrv extends xPDODriver {
+class xPDODriver extends \xPDO\om\xPDODriver {
     public $quoteChar = "'";
     public $escapeOpenChar = '[';
     public $escapeCloseChar = ']';
