@@ -192,9 +192,6 @@ class xPDOTest extends xPDOTestCase {
      */
     public function testGetDescendants($class, $expected) {
     	if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
-        array_walk($expected, function(&$value) {
-            $value = $this->xpdo->loadClass($value);
-        });
         $actual = $this->xpdo->getDescendants($class);
         $this->assertEquals($expected, $actual);
     }

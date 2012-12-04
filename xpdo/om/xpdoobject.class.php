@@ -352,7 +352,7 @@ class xPDOObject {
             } elseif (strpos(strtolower(key($row)), strtolower($className . '_')) === 0) {
                 $rowPrefix= $className . '_';
             }
-            $parentClass = $className;
+            $parentClass = get_parent_class($className);
             if (!$instance instanceof $parentClass) {
                 $xpdo->log(xPDO::LOG_LEVEL_ERROR, "Instantiated a derived class {$actualClass} that is not a subclass of the requested class {$className}");
             }
@@ -1218,7 +1218,7 @@ class xPDOObject {
         $added= false;
         if (is_object($obj)) {
             if (empty ($alias)) {
-                if ($obj->_alias == $obj->_class) {
+                if ($obj->_alias == array_slice(explode('\\', $obj->_class), -1)[0]) {
                     $aliases = $this->_getAliases($obj->_class, 1);
                     if (!empty($aliases)) {
                         $obj->_alias = reset($aliases);
@@ -1294,7 +1294,7 @@ class xPDOObject {
         if (!is_array($obj)) {
             if (is_object($obj)) {
                 if (empty ($alias)) {
-                    if ($obj->_alias == $obj->_class) {
+                    if ($obj->_alias == array_slice(explode('\\', $obj->_class), -1)[0]) {
                         $aliases = $this->_getAliases($obj->_class, 1);
                         if (!empty($aliases)) {
                             $obj->_alias = reset($aliases);

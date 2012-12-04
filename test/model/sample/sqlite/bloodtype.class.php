@@ -5,11 +5,12 @@ use xPDO\xPDO;
 class BloodType extends \sample\BloodType {
     use \xPDO\om\sqlite\xPDOObject;
     public static function map(xPDO &$xpdo) {
+        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
             'version' => '1.1',
             'table' => 'blood_types',
-            'extends' => 'xPDOObject',
+            'extends' => '\\xPDO\\om\\xPDOObject',
             'fields' =>
             array (
                 'type' => NULL,
@@ -53,7 +54,7 @@ class BloodType extends \sample\BloodType {
             array (
                 'Person' =>
                 array (
-                    'class' => 'Person',
+                    'class' => 'sample\\Person',
                     'local' => 'type',
                     'foreign' => 'blood_type',
                     'cardinality' => 'many',

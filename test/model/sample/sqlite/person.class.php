@@ -5,11 +5,12 @@ use xPDO\xPDO;
 class Person extends \sample\Person {
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
+        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
             'version' => '1.1',
             'table' => 'person',
-            'extends' => 'xPDOSimpleObject',
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
             'fields' =>
             array (
                 'first_name' => '',
@@ -141,7 +142,7 @@ class Person extends \sample\Person {
             array (
                 'PersonPhone' =>
                 array (
-                    'class' => 'PersonPhone',
+                    'class' => 'sample\\PersonPhone',
                     'local' => 'id',
                     'foreign' => 'person',
                     'cardinality' => 'many',
@@ -152,7 +153,7 @@ class Person extends \sample\Person {
             array (
                 'BloodType' =>
                 array (
-                    'class' => 'BloodType',
+                    'class' => 'sample\\BloodType',
                     'local' => 'blood_type',
                     'foreign' => 'type',
                     'cardinality' => 'one',
@@ -161,7 +162,7 @@ class Person extends \sample\Person {
             ),
             'validation' =>
             array (
-                'class' => 'validation.xPDOValidator',
+                'class' => '\\xPDO\\validation\\xPDOValidator',
                 'rules' =>
                 array (
                     'dob' =>
@@ -177,7 +178,7 @@ class Person extends \sample\Person {
                         'password_length' =>
                         array (
                             'type' => 'xPDOValidationRule',
-                            'rule' => 'xPDOMinLengthValidationRule',
+                            'rule' => '\\xPDO\\validation\\xPDOMinLengthValidationRule',
                             'value' => '6',
                         ),
                     ),

@@ -5,11 +5,12 @@ use xPDO\xPDO;
 class Phone extends \sample\Phone {
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
+        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
             'version' => '1.1',
             'table' => 'phone',
-            'extends' => 'xPDOSimpleObject',
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
             'fields' =>
             array (
                 'type' => '',
@@ -62,7 +63,7 @@ class Phone extends \sample\Phone {
             array (
                 'PersonPhone' =>
                 array (
-                    'class' => 'PersonPhone',
+                    'class' => 'sample\\PersonPhone',
                     'local' => 'id',
                     'foreign' => 'phone',
                     'cardinality' => 'many',
