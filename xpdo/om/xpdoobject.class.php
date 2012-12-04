@@ -377,7 +377,7 @@ class xPDOObject {
      */
     public static function _loadCollectionInstance(xPDO & $xpdo, array & $objCollection, $className, $criteria, $row, $fromCache, $cacheFlag=true) {
         $loaded = false;
-        if ($obj= xPDOObject :: _loadInstance($xpdo, $className, $criteria, $row)) {
+        if ($obj= static::_loadInstance($xpdo, $className, $criteria, $row)) {
             if (($cacheKey= $obj->getPrimaryKey()) && !$obj->isLazy()) {
                 if (is_array($cacheKey)) {
                     $pkval= implode('-', $cacheKey);
@@ -431,7 +431,7 @@ class xPDOObject {
                     $row= $xpdo->fromCache($criteria, $className);
                 }
                 if ($row === null || !is_array($row)) {
-                    if ($rows= xPDOObject :: _loadRows($xpdo, $className, $criteria)) {
+                    if ($rows= static::_loadRows($xpdo, $className, $criteria)) {
                         $row= $rows->fetch(PDO::FETCH_ASSOC);
                         $rows->closeCursor();
                     }
@@ -441,7 +441,7 @@ class xPDOObject {
                 if (!is_array($row)) {
                     if ($xpdo->getDebug() === true) $xpdo->log(xPDO::LOG_LEVEL_DEBUG, "Fetched empty result set from statement: " . print_r($criteria->sql, true) . " with bindings: " . print_r($criteria->bindings, true));
                 } else {
-                    $instance= xPDOObject :: _loadInstance($xpdo, $className, $criteria, $row);
+                    $instance= static::_loadInstance($xpdo, $className, $criteria, $row);
                     if (is_object($instance)) {
                         if (!$fromCache && $cacheFlag && $xpdo->_cacheEnabled) {
                             $xpdo->toCache($criteria, $instance, $cacheFlag);
@@ -492,16 +492,16 @@ class xPDOObject {
             $fromCache = (is_array($rows) && !empty($rows));
         }
         if (!$fromCache && is_object($criteria)) {
-            $rows= xPDOObject :: _loadRows($xpdo, $className, $criteria);
+            $rows= static::_loadRows($xpdo, $className, $criteria);
         }
         if (is_array ($rows)) {
             foreach ($rows as $row) {
-                xPDOObject :: _loadCollectionInstance($xpdo, $objCollection, $className, $criteria, $row, $fromCache, $cacheFlag);
+                static::_loadCollectionInstance($xpdo, $objCollection, $className, $criteria, $row, $fromCache, $cacheFlag);
             }
         } elseif (is_object($rows)) {
             $cacheRows = array();
             while ($row = $rows->fetch(PDO::FETCH_ASSOC)) {
-                xPDOObject :: _loadCollectionInstance($xpdo, $objCollection, $className, $criteria, $row, $fromCache, $cacheFlag);
+                static::_loadCollectionInstance($xpdo, $objCollection, $className, $criteria, $row, $fromCache, $cacheFlag);
                 if ($collectionCaching > 0 && $xpdo->_cacheEnabled && $cacheFlag && !$fromCache) $cacheRows[] = $row;
             }
             if ($collectionCaching > 0 && $xpdo->_cacheEnabled && $cacheFlag && !$fromCache) $rows =& $cacheRows;
