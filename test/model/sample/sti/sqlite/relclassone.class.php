@@ -5,7 +5,6 @@ use xPDO\xPDO;
 class relClassOne extends \sample\sti\relClassOne {
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
-        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
             'version' => '1.1',

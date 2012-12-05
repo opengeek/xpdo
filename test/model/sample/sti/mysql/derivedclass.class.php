@@ -5,7 +5,6 @@ use xPDO\xPDO;
 class derivedClass extends \sample\sti\derivedClass {
     use \xPDO\om\mysql\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
-        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
             'version' => '1.1',

@@ -14,7 +14,6 @@ use xPDO\xPDO;
 class xPDOSample extends \sample\xPDOSample {
     use \xPDO\om\mysql\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
-        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
             'version' => '1.1',

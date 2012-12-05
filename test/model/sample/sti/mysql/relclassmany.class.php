@@ -5,7 +5,6 @@ use xPDO\xPDO;
 class relClassMany extends \sample\sti\relClassMany {
     use \xPDO\om\mysql\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
-        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
             'version' => '1.1',

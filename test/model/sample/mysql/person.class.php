@@ -10,8 +10,13 @@ use xPDO\xPDO;
  */
 class Person extends \sample\Person {
     use \xPDO\om\mysql\xPDOSimpleObject;
+
+    /**
+     * Add this platform class to the xPDO map. Called by the autoloader.
+     *
+     * @param \xPDO\xPDO $xpdo
+     */
     public static function map(xPDO &$xpdo) {
-        parent::map($xpdo);
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
             'version' => '1.1',
