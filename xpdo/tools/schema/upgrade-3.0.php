@@ -301,7 +301,7 @@ if (empty($written)) {
                     $attrIdx = 0;
                     $isClassKey = false;
                     while ($attr = $node->attributes->item($attrIdx++)) {
-                        if (strtolower($attr->nodeName) === 'name' && $attr->nodeValue === 'class_key') {
+                        if (strtolower($attr->nodeName) === 'key' && $attr->nodeValue === 'class_key') {
                             $isClassKey = true;
                         } elseif (strtolower($attr->nodeName) === 'default' && $isClassKey) {
                             $attr->nodeValue = $package . '\\' . str_replace('.', '\\', $attr->nodeValue);
