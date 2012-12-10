@@ -76,14 +76,6 @@ abstract class xPDOGenerator {
      */
     public $metaTemplate= '';
     /**
-     * @var string $mapHeader The map header string to build the map files from.
-     */
-    public $mapHeader= '';
-    /**
-     * @var string $mapFooter The map footer string to build the map files from.
-     */
-    public $mapFooter= '';
-    /**
      * @var array $model The stored model array.
      */
     public $model= array ();
