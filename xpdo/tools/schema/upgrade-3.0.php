@@ -217,7 +217,7 @@ if (!empty($write)) {
     if ($backupSchemaName === $schema_name && $backup_path === $schema_path) {
         $xpdo->log(xPDO::LOG_LEVEL_FATAL, "backup_prefix is empty and no backup_path was specified.");
     }
-    if (!$xpdo->cacheManager->writeFile("{$backup_path}{$backupSchemaName}", $schema->saveXML())) {
+    if (!$xpdo->getCacheManager()->writeFile("{$backup_path}{$backupSchemaName}", $schema->saveXML())) {
         $xpdo->log(xPDO::LOG_LEVEL_FATAL, "Error backing up schema to {$backup_path}{$backupSchemaName}.");
     }
 }
