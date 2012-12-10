@@ -25,6 +25,8 @@
  * @subpackage om
  */
 namespace xPDO\om;
+use SimpleXMLElement;
+use xPDO\xPDO;
 
 /**
  * A service for reverse and forward engineering xPDO domain models.
@@ -97,6 +99,38 @@ abstract class xPDOGenerator {
      * @var \SimpleXMLElement
      */
     public $schema= null;
+
+    /**
+     * Properly indent (4 spaces) var_export() output for arrays.
+     *
+     * @param $var
+     * @param int $indentLevel
+     * @return string
+     */
+    public static function varExport($var, $indentLevel = 1) {
+        $output = array();
+        if (is_array($var)) {
+            $exploded = explode("\n", var_export($var, true));
+            $count = count($exploded);
+            $output = [ current($exploded) ];
+            $lineNo = 1;
+            while ($line = next($exploded)) {
+                $lineNo++;
+                if ($lineNo === $count) {
+                    $output[] = str_repeat(' ', $indentLevel * 4) . $line;
+                    break;
+                }
+                $split = str_split($line);
+                $spaces = 0;
+                while ($char = next($split)) {
+                    if ($char !== ' ') break;
+                    $spaces++;
+                }
+                $output[] = str_repeat('    ', $indentLevel + 1) . str_repeat('    ', $spaces / 2) . substr($line, ($spaces ? $spaces + 1 : 0));
+            }
+        }
+        return implode("\n", $output);
+    }
 
     /**
      * Constructor
@@ -186,14 +220,22 @@ abstract class xPDOGenerator {
      * schema.
      * @param string $outputDir The directory in which to generate the class and
      * map files into.
-     * @param boolean $compile Create compiled copies of the classes and maps from the schema.
+     * @param array $options Various options for the process.
      * @return boolean True on success, false on failure.
      */
-    public function parseSchema($schemaFile, $outputDir= '', $compile= false) {
+    public function parseSchema($schemaFile, $outputDir= '', $options = array()) {
+        if (!is_array($options)) {
+            $compile = (boolean) $options;
+        } else {
+            $compile = array_key_exists('compile', $options) ? (boolean) $options['compile'] : false;
+        }
+        $regenerate = array_key_exists('regenerate', $options) ? (boolean) $options['regenerate'] : false;
+        $update = array_key_exists('update', $options) ? (boolean) $options['update'] : true;
+
         $this->schemaFile= $schemaFile;
         $this->classTemplate= $this->getClassTemplate();
         if (!is_file($schemaFile)) {
-            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not find specified XML schema file {$schemaFile}");
+            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not find specified XML schema file {$schemaFile}");
             return false;
         }
 
@@ -434,182 +476,89 @@ abstract class xPDOGenerator {
                     }
                 }
             } else {
-                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Schema {$schemaFile} contains no valid object elements.");
+                $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Schema {$schemaFile} contains no valid object elements.");
             }
         } else {
-            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not read schema from {$schemaFile}.");
+            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not read schema from {$schemaFile}.");
         }
 
         $om_path= XPDO_CORE_PATH . 'om/';
-        $path= !empty ($outputDir) ? $outputDir : $om_path;
-        if (isset ($this->model['package']) && strlen($this->model['package']) > 0) {
-            $path .= strtr($this->model['package'], '.', '/');
-            $path .= '/';
-        }
+        $path= !empty($outputDir) ? $outputDir : $om_path;
         $this->outputMeta($path);
-        $this->outputClasses($path);
-        $this->outputMaps($path);
-        if ($compile) $this->compile($path, $this->model, $this->classes, $this->maps);
+        $this->outputClasses($path, $update, $regenerate);
+        if ($compile) $this->compile($path, $this->model, $this->classes, $this->map);
         unset($this->model, $this->classes, $this->map);
         return true;
     }
 
     /**
-     * Write the generated class files to the specified path.
+     * Create or update the generated class files to the specified path.
      *
-     * @access public
-     * @param string $path An absolute path to write the generated class files
-     * to.
+     * @param string $path An absolute path to write the generated class files to.
+     * @param boolean $update Indicates if existing class files should be updated.
+     * @param boolean $regenerate Indicates if existing class files should be
+     * regenerated.
      */
-    public function outputClasses($path) {
-        $newClassGeneration= false;
-        $newPlatformGeneration= false;
+    public function outputClasses($path, $update = true, $regenerate = false) {
         $platform= $this->model['platform'];
-        if (!is_dir($path)) {
-            $newClassGeneration= true;
-            if ($this->manager->xpdo->getCacheManager()) {
-                if (!$this->manager->xpdo->cacheManager->writeTree($path)) {
-                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
-                    return false;
-                }
-            }
-        }
-        $ppath= $path;
-        $ppath .= $platform;
-        if (!is_dir($ppath)) {
-            $newPlatformGeneration= true;
-            if ($this->manager->xpdo->getCacheManager()) {
-                if (!$this->manager->xpdo->cacheManager->writeTree($ppath)) {
-                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not create platform subdirectory {$ppath}");
-                    return false;
-                }
-            }
-        }
-        $model= $this->model;
         if (isset($this->model['phpdoc-package'])) {
-            $model['phpdoc-package']= '@package ' . $this->model['phpdoc-package'];
+            $this->model['phpdoc-package']= '@package ' . $this->model['phpdoc-package'];
             if (isset($this->model['phpdoc-subpackage']) && !empty($this->model['phpdoc-subpackage'])) {
-                $model['phpdoc-subpackage']= '@subpackage ' . $this->model['phpdoc-subpackage'] . '.' . $this->model['platform'];
+                $this->model['phpdoc-subpackage']= '@subpackage ' . $this->model['phpdoc-subpackage'] . '.' . $this->model['platform'];
             } else {
-                $model['phpdoc-subpackage']= '@subpackage ' . $this->model['platform'];
+                $this->model['phpdoc-subpackage']= '@subpackage ' . $this->model['platform'];
             }
         } else {
-            $basePos= strpos($this->model['package'], '.');
+            $basePos= strpos($this->model['package'], '\\');
             $package= $basePos
                 ? substr($this->model['package'], 0, $basePos)
                 : $this->model['package'];
             $subpackage= $basePos
                 ? substr($this->model['package'], $basePos + 1)
                 : '';
-            $model['phpdoc-package']= '@package ' . $package;
-            if ($subpackage) $model['phpdoc-subpackage']= '@subpackage ' . $subpackage;
+            $this->model['phpdoc-package']= '@package ' . str_replace('\\', '.', $package);
+            if ($subpackage) $this->model['phpdoc-subpackage']= '@subpackage ' . str_replace('\\', '.', $subpackage);
         }
         foreach ($this->classes as $className => $classDef) {
             $newClass= false;
             $classDef['class']= $className;
-            $classDef['class-lowercase']= strtolower($className);
-            $classDef= array_merge($model, $classDef);
-            $replaceVars= array ();
-            foreach ($classDef as $varKey => $varValue) {
-                if (is_scalar($varValue)) $replaceVars["[+{$varKey}+]"]= $varValue;
-            }
-            $fileContent= str_replace(array_keys($replaceVars), array_values($replaceVars), $this->classTemplate);
-            if (is_dir($path)) {
-                $fileName= $path . strtolower($className) . '.class.php';
-                if (!file_exists($fileName)) {
-                    if ($file= @ fopen($fileName, 'wb')) {
-                        if (!fwrite($file, $fileContent)) {
-                            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
-                        }
-                        $newClass= true;
-                        @fclose($file);
-                    } else {
-                        $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
-                    }
-                } else {
-                    $newClass= false;
-                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}; file already exists.\nMove existing class files to regenerate them.");
+            $classDef['namespace']= $namespace = ltrim($this->model['package'], '\\');
+            $classDef['class-shortname']= $classShortName = array_slice(explode('\\', ltrim($className, '\\')), -1)[0];
+            $classDef['class-fullname']= $classFullName = "\\{$namespace}\\{$className}";
+            $classDef['class-platform']= $platformClass = $this->getPlatformClass($classFullName);
+            $classDef['class-platform-traits']= array($this->getPlatformClass($classDef['extends']));
+            $classDef= array_merge($this->model, $classDef);
+            $fileName= $path . strtolower(str_replace('\\', DIRECTORY_SEPARATOR, ltrim($classFullName, '\\'))) . '.class.php';
+            $newClass= !file_exists($fileName);
+            if ($newClass || $regenerate) {
+                $this->_loadClass($classFullName, $classDef);
+                if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+                }
+            } elseif (!$newClass && $update) {
+                $this->_loadExistingClass($classFullName, $classDef);
+                if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not reconstruct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
                 }
             } else {
-                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
+                $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}: Use update or regenerate options to overwrite or update your domain classes.");
             }
-            $fileContent= str_replace(array_keys($replaceVars), array_values($replaceVars), $this->getClassPlatformTemplate($platform));
-            if (is_dir($ppath)) {
-                $fileName= $ppath . '/' . strtolower($className) . '.class.php';
-                if (!file_exists($fileName)) {
-                    if ($file= @ fopen($fileName, 'wb')) {
-                        if (!fwrite($file, $fileContent)) {
-                            $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
-                        }
-                        @fclose($file);
-                    } else {
-                        $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
-                    }
-                } else {
-                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}; file already exists.\nMove existing class files to regenerate them.");
-                    if ($newClassGeneration || $newClass) $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_WARN, "IMPORTANT: {$fileName} already exists but you appear to have generated classes with an older xPDO version.  You need to edit your class definition in this file to extend {$className} rather than {$classDef['extends']}.");
-                }
-            } else {
-                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
-            }
-        }
-    }
 
-    /**
-     * Write the generated class maps to the specified path.
-     *
-     * @access public
-     * @param string $path An absolute path to write the generated maps to.
-     */
-    public function outputMaps($path) {
-        if (!is_dir($path)) {
-            mkdir($path, 0777);
-        }
-        $path .= $this->model['platform'];
-        if (!is_dir($path)) {
-            mkdir($path, 0777);
-        }
-        $model= $this->model;
-        if (isset($this->model['phpdoc-package'])) {
-            $model['phpdoc-package']= '@package ' . $this->model['phpdoc-package'];
-            if (isset($this->model['phpdoc-subpackage']) && !empty($this->model['phpdoc-subpackage'])) {
-                $model['phpdoc-subpackage']= '@subpackage ' . $this->model['phpdoc-subpackage'] . '.' . $this->model['platform'];
-            } else {
-                $model['phpdoc-subpackage']= '@subpackage ' . $this->model['platform'];
-            }
-        } else {
-            $basePos= strpos($this->model['package'], '.');
-            $package= $basePos
-                ? substr($this->model['package'], 0, $basePos)
-                : $this->model['package'];
-            $subpackage= $basePos
-                ? substr($this->model['package'], $basePos + 1) . '.' . $this->model['platform']
-                : $this->model['platform'];
-            $model['phpdoc-package']= '@package ' . $package;
-            $model['phpdoc-subpackage']= '@subpackage ' . $subpackage;
-        }
-        foreach ($this->map as $className => $map) {
-            $lcClassName= strtolower($className);
-            $fileName= $path . '/' . strtolower($className) . '.map.inc.php';
-            $vars= array_merge($model, $map);
-            $replaceVars= array ();
-            foreach ($vars as $varKey => $varValue) {
-                if (is_scalar($varValue)) $replaceVars["[+{$varKey}+]"]= $varValue;
-            }
-            $fileContent= str_replace(array_keys($replaceVars), array_values($replaceVars), $this->getMapHeader());
-            $fileContent.= "\n\$xpdo_meta_map['$className']= " . var_export($map, true) . ";\n";
-            $fileContent.= str_replace(array_keys($replaceVars), array_values($replaceVars), $this->getMapFooter());
-            if (is_dir($path)) {
-                if ($file= @ fopen($fileName, 'wb')) {
-                    if (!fwrite($file, $fileContent)) {
-                        $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not write to file: {$fileName}");
-                    }
-                    fclose($file);
-                } else {
-                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create file: {$fileName}");
+            $fileName= $path . strtolower(str_replace('\\', DIRECTORY_SEPARATOR, ltrim($platformClass, '\\'))) . '.class.php';
+            $newPlatformClass= !file_exists($fileName);
+            if (isset($this->map[$className])) $classDef['map'] = static::varExport($this->map[$className], 2);
+            if ($newPlatformClass || $regenerate) {
+                $this->_loadClass($platformClass, $classDef);
+                if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+                }
+            } elseif (!$newClass && $update) {
+                $this->_loadExistingClass($platformClass, $classDef);
+                if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not reconstruct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
                 }
             } else {
-                $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not open or create dir: {$path}");
+                $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}: Use update or regenerate options to overwrite or update your platform classes.");
             }
         }
     }
@@ -621,58 +570,59 @@ abstract class xPDOGenerator {
      * @return bool
      */
     public function outputMeta($path) {
+        $path .= str_replace('\\', DIRECTORY_SEPARATOR, $this->model['package']) . DIRECTORY_SEPARATOR;
         if (!is_dir($path)) {
             if ($this->manager->xpdo->getCacheManager()) {
                 if (!$this->manager->xpdo->cacheManager->writeTree($path)) {
-                    $this->manager->xpdo->log(\xPDO\xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not create model directory at {$path}");
                     return false;
                 }
             }
         }
         $placeholders = array();
         
-        $model= $this->model;
         if (isset($this->model['phpdoc-package'])) {
-            $model['phpdoc-package']= '@package ' . $this->model['phpdoc-package'];
+            $this->model['phpdoc-package']= '@package ' . $this->model['phpdoc-package'];
             if (isset($this->model['phpdoc-subpackage']) && !empty($this->model['phpdoc-subpackage'])) {
-                $model['phpdoc-subpackage']= '@subpackage ' . $this->model['phpdoc-subpackage'] . '.' . $this->model['platform'];
+                $this->model['phpdoc-subpackage']= '@subpackage ' . $this->model['phpdoc-subpackage'] . '.' . $this->model['platform'];
             } else {
-                $model['phpdoc-subpackage']= '@subpackage ' . $this->model['platform'];
+                $this->model['phpdoc-subpackage']= '@subpackage ' . $this->model['platform'];
             }
         } else {
-            $basePos= strpos($this->model['package'], '.');
+            $basePos= strpos($this->model['package'], '\\');
             $package= $basePos
                 ? substr($this->model['package'], 0, $basePos)
                 : $this->model['package'];
             $subpackage= $basePos
-                ? substr($this->model['package'], $basePos + 1) . '.' . $this->model['platform']
+                ? substr($this->model['package'], $basePos + 1) . '\\' . $this->model['platform']
                 : $this->model['platform'];
-            $model['phpdoc-package']= '@package ' . $package;
-            $model['phpdoc-subpackage']= '@subpackage ' . $subpackage;
+            $this->model['phpdoc-package']= '@package ' . $package;
+            $this->model['phpdoc-subpackage']= '@subpackage ' . $subpackage;
         }
-        $placeholders = array_merge($placeholders,$model);
+        $placeholders = array_merge($placeholders,$this->model);
         
         $classMap = array();
-//        $skipClasses = array('xPDOObject','xPDOSimpleObject');
         foreach ($this->classes as $className => $meta) {
             if (!isset($meta['extends'])) {
-                $meta['extends'] = 'xPDOObject';
+                $meta['extends'] = '\\xPDO\\om\\xPDOObject';
             }
-            if (!isset($classMap[$meta['extends']])) {
-                $classMap[$meta['extends']] = array();
+            $parent = ltrim($meta['extends'], '\\');
+            if (!isset($classMap[$parent])) {
+                $classMap[$parent] = array();
             }
-            $classMap[$meta['extends']][] = $className;
+            $classMap[$parent][] = ltrim($this->model['package'], '\\') . '\\' . $className;
         }
+        $written = false;
         if ($this->manager->xpdo->getCacheManager()) {
-            $placeholders['map'] = var_export($classMap,true);
+            $placeholders['map'] = static::varExport($classMap, 0);
             $replaceVars = array();
             foreach ($placeholders as $varKey => $varValue) {
-                if (is_scalar($varValue)) $replaceVars["[+{$varKey}+]"]= $varValue;
+                if (is_scalar($varValue)) $replaceVars["[+{$varKey}+]"]= (string) $varValue;
             }
             $fileContent= str_replace(array_keys($replaceVars), array_values($replaceVars), $this->getMetaTemplate());
-            $this->manager->xpdo->cacheManager->writeFile("{$path}/metadata.{$model['platform']}.php",$fileContent);
+            $written = $this->manager->xpdo->cacheManager->writeFile("{$path}metadata.{$this->model['platform']}.php",$fileContent);
         }
-        return true;
+        return $written;
     }
 
     /**
@@ -694,8 +644,9 @@ abstract class xPDOGenerator {
     public function getClassTemplate() {
         if ($this->classTemplate) return $this->classTemplate;
         $template= <<<EOD
-<?php
-class [+class+] extends [+extends+] {}
+[+class-header+]
+[+class-declaration+]
+[+class-traits+][+class-constants+][+class-properties+][+class-methods+][+class-close-declaration+][+class-footer+]
 EOD;
         return $template;
     }
@@ -709,38 +660,16 @@ EOD;
     public function getClassPlatformTemplate($platform) {
         if ($this->platformTemplate) return $this->platformTemplate;
         $template= <<<EOD
-<?php
-require_once (dirname(dirname(__FILE__)) . '/[+class-lowercase+].class.php');
-class [+class+]_$platform extends [+class+] {}
+[+class-header+]
+[+class-declaration+]
+[+class-traits+][+class-constants+][+class-properties+]
+    public static function map(xPDO &\$xpdo) {
+        \$xpdo->map[__CLASS__] = [+map+];
+    }
+[+class-methods+][+class-close-declaration+][+class-footer+]
 EOD;
         return $template;
     }
-
-    /**
-     * Gets the map header template.
-     *
-     * @access public
-     * @return string The map header template.
-     */
-    public function getMapHeader() {
-        if ($this->mapHeader) return $this->mapHeader;
-        $header= <<<EOD
-<?php
-EOD;
-        return $header;
-    }
-
-    /**
-     * Gets the map footer template.
-     *
-     * @access public
-     * @return string The map footer template.
-     */
-    public function getMapFooter() {
-        if ($this->mapFooter) return $this->mapFooter;
-        return '';
-    }
-
 
     /**
      * Gets the meta template.
@@ -752,8 +681,263 @@ EOD;
         if ($this->metaTemplate) return $this->metaTemplate;
         $tpl= <<<EOD
 <?php
-\n\$xpdo_meta_map = [+map+];
+\$xpdo_meta_map = [+map+];
 EOD;
         return $tpl;
     }
+
+    /**
+     * Get the platform class name of the specified domain class.
+     *
+     * It should be relative to the current model package or absolute.
+     *
+     * @param string $class A domain class to get the platform class name from.
+     */
+    public function getPlatformClass($domainClass) {
+        $relative = (strpos($domainClass, '\\') !== 0);
+        $exploded = explode('\\', ltrim($domainClass, '\\'));
+        $class = array_slice($exploded, -1)[0];
+        $namespace = implode('\\', array_slice($exploded, 0, -1));
+        if (!empty($namespace)) $namespace .= '\\';
+        if ($relative) {
+            $platformClass = "\\{$this->model['package']}\\{$namespace}{$this->model['platform']}\\{$class}";
+        } else {
+            $platformClass = "\\{$namespace}{$this->model['platform']}\\{$class}";
+        }
+        return $platformClass;
+    }
+
+    /**
+     * Load reflection data from an existing class for reconstruction.
+     *
+     * @param string $class
+     * @param array &$meta
+     */
+    protected function _loadExistingClass($class, &$meta = array()) {
+        try {
+            $reflector = new \xPDO\reflect\xPDOReflectionClass($class);
+
+            $classHeader = rtrim($reflector->getSource(null, 0, $reflector->getStartLine() - 1, false), "\n");
+            $classFooter = trim($reflector->getSource(null, $reflector->getEndLine(), null, false), " \n\r\t");
+            if (!empty($classFooter)) $classFooter = rtrim($classFooter, "\n");
+
+            $interfaces = $reflector->getInterfaceNames();
+            if (!empty($interfaces)) {
+                $interfaces = " implements " . implode(', ', $interfaces);
+            } else {
+                $interfaces = '';
+            }
+
+            $constants = $reflector->getConstants();
+
+            $traits = $reflector->getTraits();
+
+            $properties = array_filter($reflector->getProperties(), function($property) use ($class) {
+                /* @var \ReflectionProperty $property */
+                return $property->getDeclaringClass() === ltrim($class, '\\');
+            });
+            $methods = array_filter($reflector->getMethods(), function($method) use ($class) {
+                /* @var \ReflectionMethod $method */
+                return $method->getDeclaringClass() === ltrim($class, '\\');
+            });
+
+            $traitArray = array();
+            /* @var \ReflectionClass $trait */
+            foreach ($traits as $trait) {
+                $traitArray[] = "    use {$trait->getName()};";
+            }
+
+            $constantsArray = array();
+            foreach ($constants as $constantKey => $constant) {
+                $constantsArray[] = "    const {$constantKey} = " . static::varExport($constant) . ';';
+            }
+
+            $propertyArray = array();
+            /* @var \ReflectionProperty $property */
+            foreach ($properties as $property) {
+                $propertyArray[] = $reflector->getSource($property);
+            }
+
+            $methodArray = array();
+            /* @var \ReflectionMethod $method */
+            foreach ($methods as $method) {
+                $methodArray[] = $reflector->getSource($method);
+            }
+
+            $meta['class-header'] = $classHeader;
+            $meta['class-declaration'] = "class {$reflector->getShortName()} extends \\{$reflector->getParentClass()->getName()}{$interfaces}\n{";
+            $meta['class-constants'] = implode("\n", $constantsArray);
+            $meta['class-traits'] = implode("\n", $traitArray);
+            $meta['class-properties'] = implode("\n", $propertyArray);
+            $meta['class-methods'] = implode("\n", $methodArray);
+            $meta['class-close-declaration'] = "}\n";
+            $meta['class-footer'] = $classFooter;
+        } catch (\Exception $e) {
+            $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
+        }
+    }
+
+    protected function _loadClass($class, &$meta = array()) {
+        $meta['class-header'] = $this->_constructClassHeader($class, $meta);
+        $meta['class-declaration'] = $this->_constructClassDeclaration($class, $meta);
+        $meta['class-traits'] = implode("\n", $this->_constructClassTraits($class, $meta));
+        $meta['class-constants'] = implode("\n", $this->_constructClassConstants($class, $meta));
+        $meta['class-properties'] = implode("\n", $this->_constructClassProperties($class, $meta));
+        $meta['class-methods'] = implode("\n", $this->_constructClassMethods($class, $meta));
+        $meta['class-close-declaration'] = "}\n";
+        $meta['class-footer'] = $this->_constructClassFooter($class, $meta);
+    }
+
+    protected function _constructClass($fileName, $meta, $template) {
+        $constructed = false;
+        if (!empty($template)) {
+            try {
+                $replaceVars= array ();
+                foreach ($meta as $varKey => $varValue) {
+                    if (is_scalar($varValue)) {
+                        $replaceVars["[+{$varKey}+]"]= (string) $varValue;
+                    } elseif (is_array($varValue)) {
+                        $replaceVars["[+{$varKey}+]"]= static::varExport($varValue);
+                    }
+                }
+                $fileContent= str_replace(array_keys($replaceVars), array_values($replaceVars), $template);
+                $constructed = $this->manager->xpdo->cacheManager->writeFile($fileName, $fileContent);
+            } catch (\Exception $e) {
+                $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
+                return false;
+            }
+        }
+        return $constructed;
+    }
+
+    protected function _constructClassHeader($class, $meta) {
+        if ($class === $meta['class-platform']) {
+            $tpl = <<<EOD
+<?php
+namespace {$meta['namespace']}\\{$meta['platform']};
+use xPDO\\xPDO;
+
+EOD;
+            if (!empty($meta['class-platform-imports'])) {
+                foreach ($meta['class-platform-imports'] as $useAs => $import) {
+                    if (is_int($useAs)) {
+                        $tpl .= "use {$import};\n";
+                    } else {
+                        $tpl .= "use {$import} as {$useAs};\n";
+                    }
+                }
+            }
+            if (!empty($meta['class-platform-comment'])) {
+                $tpl .= "\n{$meta['class-platform-comment']}\n";
+            }
+        } else {
+            $tpl = <<<EOD
+<?php
+namespace {$meta['namespace']};
+use xPDO\\xPDO;
+
+EOD;
+            if (!empty($meta['class-imports'])) {
+                foreach ($meta['class-imports'] as $useAs => $import) {
+                    if (is_int($useAs)) {
+                        $tpl .= "use {$import};\n";
+                    } else {
+                        $tpl .= "use {$import} as {$useAs};\n";
+                    }
+                }
+            }
+            if (!empty($meta['class-comment'])) {
+                $tpl .= "\n{$meta['class-comment']}\n";
+            }
+        }
+        return $tpl;
+    }
+
+    protected function _constructClassDeclaration($class, $meta) {
+        if ($class === $meta['class-platform']) {
+            $tpl = "class {$meta['class-shortname']} extends {$meta['class-fullname']}";
+            if (!empty($meta['class-platform-implements'])) {
+                $tpl .= " implements " . implode(', ', $meta['class-platform-implements']);
+            }
+            $tpl .= "\n{";
+        } else {
+            $tpl = "class {$meta['class-shortname']} extends {$meta['extends']}";
+            if (!empty($meta['class-implements'])) {
+                $tpl .= " implements " . implode(', ', $meta['class-implements']);
+            }
+            $tpl .= "\n{";
+        }
+        return $tpl;
+    }
+
+    protected function _constructClassTraits($class, $meta) {
+        $tpl = array();
+        if ($class === $meta['class-platform']) {
+            if (!empty($meta['class-platform-traits'])) {
+                foreach ($meta['class-platform-traits'] as $alias => $trait) {
+                    if (is_int($alias)) {
+                        $tpl[] = "    use {$trait};";
+                    } else {
+                        $tpl[] = "    use {$trait} as {$alias};";
+                    }
+                }
+            }
+        } else {
+            if (!empty($meta['class-traits'])) {
+                foreach ($meta['class-traits'] as $alias => $trait) {
+                    if (is_int($alias)) {
+                        $tpl[] = "    use {$trait};";
+                    } else {
+                        $tpl[] = "    use {$trait} as {$alias};";
+                    }
+                }
+            }
+        }
+        return $tpl;
+    }
+
+    protected function _constructClassConstants($class, $meta) {
+        $tpl = array();
+        if ($class === $meta['class-platform']) {
+            if (!empty($meta['class-platform-constants'])) {
+                foreach ($meta['class-platform-constants'] as $const => $value) {
+                    $tpl[] = "    const {$const} = " . static::varExport($value) . ";";
+                }
+            }
+        } else {
+            if (!empty($meta['class-constants'])) {
+                foreach ($meta['class-constants'] as $const => $value) {
+                    $tpl[] = "    const {$const} = " . static::varExport($value) . ";";
+                }
+            }
+        }
+        return $tpl;
+    }
+
+    protected function _constructClassProperties($class, $meta) {
+        $tpl = array();
+        if ($class === $meta['class-platform']) {
+            if (!empty($meta['class-platform-properties'])) {
+                foreach ($meta['class-platform-properties'] as $prop => $value) {
+                    $tpl[] = "    public {$prop}" . (is_null($value) ? ';' : " = " . static::varExport($value) . ";");
+                }
+            }
+        } else {
+            if (!empty($meta['class-properties'])) {
+                foreach ($meta['class-properties'] as $prop => $value) {
+                    $tpl[] = "    public {$prop}" . (is_null($value) ? ';' : " = " . static::varExport($value) . ";");
+                }
+            }
+        }
+        return $tpl;
+    }
+
+    protected function _constructClassMethods($class, $meta) {
+        return array();
+    }
+
+    protected function _constructClassFooter($class, $meta) {
+        return '';
+    }
+
 }

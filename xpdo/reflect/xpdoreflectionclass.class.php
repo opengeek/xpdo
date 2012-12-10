@@ -1,7 +1,16 @@
 <?php
 namespace xPDO\reflect;
 
+use xPDO\om\xPDOGenerator;
+
 class xPDOReflectionClass extends \ReflectionClass {
+    public $defaultProperties;
+
+    public function __construct($argument) {
+        parent::__construct($argument);
+        $this->defaultProperties = $this->getDefaultProperties();
+    }
+
     /**
      * @param \ReflectionClass|\ReflectionFunctionAbstract $element
      * @param int|null $start
@@ -9,7 +18,7 @@ class xPDOReflectionClass extends \ReflectionClass {
      */
     public function getSource($element = null, $start = null, $end = false, $includeComment = true) {
         $source = false;
-        /* @var \ReflectionClass|\ReflectionFunctionAbstract $element */
+        /* @var \ReflectionClass|\ReflectionFunctionAbstract|\ReflectionProperty $element */
         if ($element === null) $element =& $this;
         if ($element instanceof \ReflectionClass || $element instanceof \ReflectionFunctionAbstract) {
             if (is_readable($element->getFileName())) {
@@ -18,7 +27,7 @@ class xPDOReflectionClass extends \ReflectionClass {
                     if ($includeComment) {
                         $comment = $element->getDocComment();
                         if (!empty($comment)) {
-                            array_unshift($sourceArray, "    {$comment}\n");
+                            array_unshift($sourceArray, ($element instanceof \ReflectionClass ? '' : '    ') . "{$comment}\n");
                         }
                     }
                     $source = implode('', $sourceArray);
@@ -26,6 +35,29 @@ class xPDOReflectionClass extends \ReflectionClass {
                     throw new \xPDO\xPDOException("Error getting source from Reflection element: {$e->getMessage()}");
                 }
             }
+        } elseif ($element instanceof \ReflectionProperty) {
+            $source = '    ';
+            if ($includeComment) {
+                $comment = $element->getDocComment();
+                if (!empty($comment)) {
+                    $source = "\n    {$comment}\n    ";
+                }
+            }
+            if ($element->isPublic()) {
+                $source .= 'public ';
+            } elseif ($element->isProtected()) {
+                $source .= 'protected ';
+            } elseif ($element->isPrivate()) {
+                $source .= 'private ';
+            }
+            if ($element->isStatic()) {
+                $source .= 'static ';
+            }
+            $source .= '$' . $element->getName();
+            if (array_key_exists($element->getName(), $this->defaultProperties) && !is_null($this->defaultProperties[$element->getName()])) {
+                $source .= ' = ' . xPDOGenerator::varExport($this->defaultProperties[$element->getName()], 1);
+            }
+            $source .= ';';
         }
         return $source;
     }
