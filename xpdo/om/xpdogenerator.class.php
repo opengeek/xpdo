@@ -736,7 +736,7 @@ EOD;
             $traitArray = array();
             /* @var \ReflectionClass $trait */
             foreach ($traits as $trait) {
-                $traitArray[] = "    use {$trait->getName()};";
+                $traitArray[] = "    use \\{$trait->getName()};";
             }
 
             $constantsArray = array();
@@ -867,6 +867,7 @@ EOD;
         if ($class === $meta['class-platform']) {
             if (!empty($meta['class-platform-traits'])) {
                 foreach ($meta['class-platform-traits'] as $alias => $trait) {
+                    $trait = '\\' . ltrim($trait, '\\');
                     if (is_int($alias)) {
                         $tpl[] = "    use {$trait};";
                     } else {
@@ -877,6 +878,7 @@ EOD;
         } else {
             if (!empty($meta['class-traits'])) {
                 foreach ($meta['class-traits'] as $alias => $trait) {
+                    $trait = '\\' . ltrim($trait, '\\');
                     if (is_int($alias)) {
                         $tpl[] = "    use {$trait};";
                     } else {
