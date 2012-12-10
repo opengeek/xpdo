@@ -41,6 +41,9 @@ use xPDO\xPDO;
  * @subpackage om
  */
 abstract class xPDOGenerator {
+    /** @var array $updated A map of classes already updated during this request */
+    public static $updated= array();
+
     /**
      * @var xPDOManager $manager A reference to the xPDOManager using this
      * generator.
@@ -216,6 +219,7 @@ abstract class xPDOGenerator {
      * @return boolean True on success, false on failure.
      */
     public function parseSchema($schemaFile, $outputDir= '', $options = array()) {
+        $this->_reset();
         if (!is_array($options)) {
             $compile = (boolean) $options;
         } else {
@@ -522,35 +526,47 @@ abstract class xPDOGenerator {
             $classDef= array_merge($this->model, $classDef);
             $fileName= $path . strtolower(str_replace('\\', DIRECTORY_SEPARATOR, ltrim($classFullName, '\\'))) . '.class.php';
             $newClass= !file_exists($fileName);
-            if ($newClass || $regenerate) {
-                $this->_loadClass($classFullName, $classDef);
-                if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
-                }
-            } elseif (!$newClass && $update) {
-                $this->_loadExistingClass($classFullName, $classDef);
-                if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not reconstruct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+            if (!in_array($classFullName, self::$updated)) {
+                if ($newClass || $regenerate) {
+                    $this->_loadClass($classFullName, $classDef);
+                    self::$updated[] = $classFullName;
+                    if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
+                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+                    }
+                } elseif (!$newClass && $update) {
+                    $this->_loadExistingClass($classFullName, $classDef);
+                    self::$updated[] = $classFullName;
+                    if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
+                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not reconstruct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+                    }
+                } else {
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}: Use update or regenerate options to overwrite or update your domain classes.");
                 }
             } else {
-                $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}: Use update or regenerate options to overwrite or update your domain classes.");
+                $this->manager->xpdo->log(xPDO::LOG_LEVEL_WARN, "Domain class {$classFullName} was already constructed to file {$fileName} in this session", '', __METHOD__, __FILE__, __LINE__);
             }
 
             $fileName= $path . strtolower(str_replace('\\', DIRECTORY_SEPARATOR, ltrim($platformClass, '\\'))) . '.class.php';
             $newPlatformClass= !file_exists($fileName);
-            if (isset($this->map[$className])) $classDef['map'] = static::varExport($this->map[$className], 2);
-            if ($newPlatformClass || $regenerate) {
-                $this->_loadClass($platformClass, $classDef);
-                if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
-                }
-            } elseif (!$newClass && $update) {
-                $this->_loadExistingClass($platformClass, $classDef);
-                if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
-                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not reconstruct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+            if (!in_array($platformClass, self::$updated)) {
+                if (isset($this->map[$className])) $classDef['map'] = static::varExport($this->map[$className], 2);
+                if ($newPlatformClass || $regenerate) {
+                    $this->_loadClass($platformClass, $classDef);
+                    self::$updated[] = $platformClass;
+                    if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
+                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+                    }
+                } elseif (!$newClass && $update) {
+                    $this->_loadExistingClass($platformClass, $classDef);
+                    self::$updated[] = $platformClass;
+                    if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
+                        $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not reconstruct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
+                    }
+                } else {
+                    $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}: Use update or regenerate options to overwrite or update your platform classes.");
                 }
             } else {
-                $this->manager->xpdo->log(xPDO::LOG_LEVEL_INFO, "Skipping {$fileName}: Use update or regenerate options to overwrite or update your platform classes.");
+                $this->manager->xpdo->log(xPDO::LOG_LEVEL_WARN, "Platform class {$platformClass} was already constructed to file {$fileName} in this session", '', __METHOD__, __FILE__, __LINE__);
             }
         }
     }
@@ -932,6 +948,13 @@ EOD;
 
     protected function _constructClassFooter($class, $meta) {
         return '';
+    }
+
+    private function _reset() {
+        $this->model = null;
+        $this->map = array();
+        $this->classes = array();
+        $this->schemaContent = '';
     }
 
 }
