@@ -1915,7 +1915,7 @@ class xPDO {
      *
      * @param string $class Optional name of a derivative xPDOCacheManager class.
      * @param array $options An array of options for the cache manager instance.
-     * @return xPDOCacheManager The xPDOCacheManager for this xPDO instance.
+     * @return \xPDO\cache\xPDOCacheManager The xPDOCacheManager for this xPDO instance.
      */
     public function &getCacheManager($class= '\\xPDO\\cache\\xPDOCacheManager', $options = array()) {
         if ($this->cacheManager === null || !is_object($this->cacheManager) || !($this->cacheManager instanceof xPDOCacheManager)) {
