@@ -1,24 +1,24 @@
 <?php
 namespace sample\sqlite;
 use xPDO\xPDO;
-
-class PersonPhone extends \sample\PersonPhone {
+class PersonPhone extends \sample\PersonPhone
+{
     use \xPDO\om\sqlite\xPDOObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'person_phone',
             'extends' => '\\xPDO\\om\\xPDOObject',
-            'fields' =>
+            'fields' => 
             array (
                 'person' => NULL,
                 'phone' => NULL,
                 'is_primary' => 0,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'person' =>
+                'person' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
@@ -26,7 +26,7 @@ class PersonPhone extends \sample\PersonPhone {
                     'null' => false,
                     'index' => 'pk',
                 ),
-                'phone' =>
+                'phone' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
@@ -34,7 +34,7 @@ class PersonPhone extends \sample\PersonPhone {
                     'null' => false,
                     'index' => 'pk',
                 ),
-                'is_primary' =>
+                'is_primary' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '1',
@@ -43,21 +43,21 @@ class PersonPhone extends \sample\PersonPhone {
                     'default' => 0,
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'PRIMARY' =>
+                'PRIMARY' => 
                 array (
                     'alias' => 'PRIMARY',
                     'primary' => true,
                     'unique' => true,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'person' =>
+                        'person' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
                         ),
-                        'phone' =>
+                        'phone' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -65,9 +65,9 @@ class PersonPhone extends \sample\PersonPhone {
                     ),
                 ),
             ),
-            'composites' =>
+            'composites' => 
             array (
-                'Phone' =>
+                'Phone' => 
                 array (
                     'class' => 'sample\\Phone',
                     'local' => 'phone',
@@ -76,9 +76,9 @@ class PersonPhone extends \sample\PersonPhone {
                     'owner' => 'foreign',
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'Person' =>
+                'Person' => 
                 array (
                     'class' => 'sample\\Person',
                     'local' => 'person',

@@ -17,16 +17,15 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA 02111-1307 USA
  */
-$mtime= microtime();
-$mtime= explode(" ", $mtime);
-$mtime= $mtime[1] + $mtime[0];
-$tstart= $mtime;
+use xPDO\xPDO;
+
+$tstart= microtime(true);
 
 $properties = array();
 include(dirname(dirname(dirname(dirname(__FILE__)))) . '/xpdo/xpdo.class.php');
 include(dirname(dirname(dirname(dirname(__FILE__)))) . '/test/properties.inc.php');
 
-$dbtypes = array('mysql', 'sqlite', 'sqlsrv');
+$dbtypes = array('mysql', 'sqlite'/*, 'sqlsrv'*/);
 
 foreach ($dbtypes as $dbtype) {
     $xpdo= new xPDO($properties["{$dbtype}_string_dsn_test"], $properties["{$dbtype}_string_username"], $properties["{$dbtype}_string_password"], $properties["{$dbtype}_array_driverOptions"]);
@@ -39,7 +38,7 @@ foreach ($dbtypes as $dbtype) {
     $xpdo->manager->getGenerator();
 
     //Use this to create a schema from an existing database
-    #$xml= $xpdo->manager->generator->writeSchema(XPDO_CORE_PATH . '../model/schema/sample.' . $dbtype . '.schema.xml', 'sample', 'xPDOObject', '');
+//    $xml= $xpdo->manager->generator->writeSchema(XPDO_CORE_PATH . '../model/schema/sample.' . $dbtype . '.schema.xml', 'sample', 'xPDOObject', '');
 
     //Use this to generate classes and maps from a schema
     // NOTE: by default, only maps are overwritten; delete class files if you want to regenerate classes
@@ -50,10 +49,7 @@ foreach ($dbtypes as $dbtype) {
     unset($xpdo);
 }
 
-$mtime= microtime();
-$mtime= explode(" ", $mtime);
-$mtime= $mtime[1] + $mtime[0];
-$tend= $mtime;
+$tend= microtime(true);
 $totalTime= ($tend - $tstart);
 $totalTime= sprintf("%2.4f s", $totalTime);
 

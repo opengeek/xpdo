@@ -1,46 +1,46 @@
 <?php
 namespace sample\sti\sqlite;
 use xPDO\xPDO;
-
-class relClassMany extends \sample\sti\relClassMany {
+class relClassMany extends \sample\sti\relClassMany
+{
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'sti_related_many',
             'extends' => '\\xPDO\\om\\xPDOSimpleObject',
-            'fields' =>
+            'fields' => 
             array (
                 'field1' => NULL,
                 'field2' => NULL,
                 'date_modified' => 'CURRENT_TIMESTAMP',
                 'fkey' => NULL,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'field1' =>
+                'field1' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '200',
                     'phptype' => 'string',
                     'null' => false,
                 ),
-                'field2' =>
+                'field2' => 
                 array (
                     'dbtype' => 'tinyint',
                     'precision' => '1',
                     'phptype' => 'boolean',
                     'null' => false,
                 ),
-                'date_modified' =>
+                'date_modified' => 
                 array (
                     'dbtype' => 'timestamp',
                     'phptype' => 'timestamp',
                     'null' => false,
                     'default' => 'CURRENT_TIMESTAMP',
                 ),
-                'fkey' =>
+                'fkey' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
@@ -49,16 +49,16 @@ class relClassMany extends \sample\sti\relClassMany {
                     'index' => 'fk',
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'fkey2' =>
+                'fkey2' => 
                 array (
                     'alias' => 'fkey2',
                     'primary' => false,
                     'unique' => false,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'fkey' =>
+                        'fkey' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -66,9 +66,9 @@ class relClassMany extends \sample\sti\relClassMany {
                     ),
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'relParent' =>
+                'relParent' => 
                 array (
                     'class' => 'sample\\sti\\baseClass',
                     'local' => 'fkey',

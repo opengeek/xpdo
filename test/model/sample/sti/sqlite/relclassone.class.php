@@ -1,30 +1,30 @@
 <?php
 namespace sample\sti\sqlite;
 use xPDO\xPDO;
-
-class relClassOne extends \sample\sti\relClassOne {
+class relClassOne extends \sample\sti\relClassOne
+{
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'sti_related_one',
             'extends' => '\\xPDO\\om\\xPDOSimpleObject',
-            'fields' =>
+            'fields' => 
             array (
                 'field1' => NULL,
                 'field2' => NULL,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'field1' =>
+                'field1' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
                     'phptype' => 'integer',
                     'null' => false,
                 ),
-                'field2' =>
+                'field2' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -32,9 +32,9 @@ class relClassOne extends \sample\sti\relClassOne {
                     'null' => false,
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'relParent' =>
+                'relParent' => 
                 array (
                     'class' => 'sample\\sti\\baseClass',
                     'local' => 'id',

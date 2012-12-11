@@ -1,21 +1,21 @@
 <?php
 namespace sample\sti\mysql;
 use xPDO\xPDO;
-
-class derivedClass extends \sample\sti\derivedClass {
+class derivedClass extends \sample\sti\derivedClass
+{
     use \xPDO\om\mysql\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
-            'version' => '1.1',
+            'version' => '3.0',
             'extends' => '\\sample\\sti\\baseClass',
-            'fields' =>
+            'fields' => 
             array (
                 'class_key' => 'sample\\sti\\derivedClass',
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'class_key' =>
+                'class_key' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '255',

@@ -1,25 +1,25 @@
 <?php
 namespace sample\mysql;
 use xPDO\xPDO;
-
-class Item extends \sample\Item {
+class Item extends \sample\Item
+{
     use \xPDO\om\mysql\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'items',
-            'extends' => 'xPDOSimpleObject',
-            'fields' =>
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
+            'fields' => 
             array (
                 'name' => '',
                 'color' => 'green',
                 'description' => NULL,
                 'date_modified' => 'CURRENT_TIMESTAMP',
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'name' =>
+                'name' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '255',
@@ -28,7 +28,7 @@ class Item extends \sample\Item {
                     'default' => '',
                     'index' => 'fk',
                 ),
-                'color' =>
+                'color' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '255',
@@ -37,13 +37,13 @@ class Item extends \sample\Item {
                     'default' => 'green',
                     'index' => 'fk',
                 ),
-                'description' =>
+                'description' => 
                 array (
                     'dbtype' => 'text',
                     'phptype' => 'string',
                     'null' => true,
                 ),
-                'date_modified' =>
+                'date_modified' => 
                 array (
                     'dbtype' => 'timestamp',
                     'phptype' => 'timestamp',
@@ -53,9 +53,5 @@ class Item extends \sample\Item {
                 ),
             ),
         );
-    }
-
-    public static function callTest() {
-        return __CLASS__;
     }
 }

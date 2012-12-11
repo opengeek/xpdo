@@ -11,8 +11,6 @@ namespace sample;
  *
  * @package sample
  */
-class xPDOSample extends \xPDO\om\xPDOSimpleObject {
-    public static function callTest() {
-        return 'xPDOSample';
-    }
+class xPDOSample extends \xPDO\om\xPDOSimpleObject
+{
 }

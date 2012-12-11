@@ -6,4 +6,6 @@ namespace sample;
  *
  * @package sample
  */
-class Phone extends \xPDO\om\xPDOSimpleObject {}
+class Phone extends \xPDO\om\xPDOSimpleObject
+{
+}

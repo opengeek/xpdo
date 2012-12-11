@@ -7,23 +7,24 @@ use xPDO\xPDO;
  *
  * @package sample.mysql
  */
-class PersonPhone extends \sample\PersonPhone {
+class PersonPhone extends \sample\PersonPhone
+{
     use \xPDO\om\mysql\xPDOObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'person_phone',
-            'extends' => 'xPDOObject',
-            'fields' =>
+            'extends' => '\\xPDO\\om\\xPDOObject',
+            'fields' => 
             array (
                 'person' => NULL,
                 'phone' => NULL,
                 'is_primary' => 0,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'person' =>
+                'person' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
@@ -31,7 +32,7 @@ class PersonPhone extends \sample\PersonPhone {
                     'null' => false,
                     'index' => 'pk',
                 ),
-                'phone' =>
+                'phone' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
@@ -39,7 +40,7 @@ class PersonPhone extends \sample\PersonPhone {
                     'null' => false,
                     'index' => 'pk',
                 ),
-                'is_primary' =>
+                'is_primary' => 
                 array (
                     'dbtype' => 'tinyint',
                     'precision' => '1',
@@ -48,22 +49,22 @@ class PersonPhone extends \sample\PersonPhone {
                     'default' => 0,
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'PRIMARY' =>
+                'PRIMARY' => 
                 array (
                     'alias' => 'PRIMARY',
                     'primary' => true,
                     'unique' => true,
                     'type' => 'BTREE',
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'person' =>
+                        'person' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
                         ),
-                        'phone' =>
+                        'phone' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -71,9 +72,9 @@ class PersonPhone extends \sample\PersonPhone {
                     ),
                 ),
             ),
-            'composites' =>
+            'composites' => 
             array (
-                'Phone' =>
+                'Phone' => 
                 array (
                     'class' => 'sample\\Phone',
                     'local' => 'phone',
@@ -82,9 +83,9 @@ class PersonPhone extends \sample\PersonPhone {
                     'owner' => 'foreign',
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'Person' =>
+                'Person' => 
                 array (
                     'class' => 'sample\\Person',
                     'local' => 'person',

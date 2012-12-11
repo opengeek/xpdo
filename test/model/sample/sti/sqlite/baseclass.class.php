@@ -1,17 +1,17 @@
 <?php
 namespace sample\sti\sqlite;
 use xPDO\xPDO;
-
-class baseClass extends \sample\sti\baseClass {
+class baseClass extends \sample\sti\baseClass
+{
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample\\sti',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'sti_objects',
             'extends' => '\\xPDO\\om\\xPDOSimpleObject',
             'inherit' => 'single',
-            'fields' =>
+            'fields' => 
             array (
                 'field1' => 0,
                 'field2' => '',
@@ -19,9 +19,9 @@ class baseClass extends \sample\sti\baseClass {
                 'fkey' => NULL,
                 'class_key' => 'sample\\sti\\baseClass',
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'field1' =>
+                'field1' => 
                 array (
                     'dbtype' => 'tinyint',
                     'precision' => '2',
@@ -29,7 +29,7 @@ class baseClass extends \sample\sti\baseClass {
                     'null' => false,
                     'default' => 0,
                 ),
-                'field2' =>
+                'field2' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -37,14 +37,14 @@ class baseClass extends \sample\sti\baseClass {
                     'null' => false,
                     'default' => '',
                 ),
-                'date_modified' =>
+                'date_modified' => 
                 array (
                     'dbtype' => 'timestamp',
                     'phptype' => 'timestamp',
                     'null' => false,
                     'default' => 'CURRENT_TIMESTAMP',
                 ),
-                'fkey' =>
+                'fkey' => 
                 array (
                     'dbtype' => 'int',
                     'precision' => '11',
@@ -52,7 +52,7 @@ class baseClass extends \sample\sti\baseClass {
                     'null' => true,
                     'index' => 'fk',
                 ),
-                'class_key' =>
+                'class_key' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '255',
@@ -61,16 +61,16 @@ class baseClass extends \sample\sti\baseClass {
                     'default' => 'sample\\sti\\baseClass',
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'fkey1' =>
+                'fkey1' => 
                 array (
                     'alias' => 'fkey1',
                     'primary' => false,
                     'unique' => false,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'fkey' =>
+                        'fkey' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -78,9 +78,9 @@ class baseClass extends \sample\sti\baseClass {
                     ),
                 ),
             ),
-            'composites' =>
+            'composites' => 
             array (
-                'relMany' =>
+                'relMany' => 
                 array (
                     'class' => 'sample\\sti\\relClassMany',
                     'local' => 'id',
@@ -89,9 +89,9 @@ class baseClass extends \sample\sti\baseClass {
                     'owner' => 'local',
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'relOne' =>
+                'relOne' => 
                 array (
                     'class' => 'sample\\sti\\relClassOne',
                     'local' => 'fkey',

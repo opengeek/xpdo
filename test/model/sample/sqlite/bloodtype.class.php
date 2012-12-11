@@ -1,23 +1,23 @@
 <?php
 namespace sample\sqlite;
 use xPDO\xPDO;
-
-class BloodType extends \sample\BloodType {
+class BloodType extends \sample\BloodType
+{
     use \xPDO\om\sqlite\xPDOObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'blood_types',
             'extends' => '\\xPDO\\om\\xPDOObject',
-            'fields' =>
+            'fields' => 
             array (
                 'type' => NULL,
                 'description' => NULL,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'type' =>
+                'type' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -25,23 +25,23 @@ class BloodType extends \sample\BloodType {
                     'null' => false,
                     'index' => 'pk',
                 ),
-                'description' =>
+                'description' => 
                 array (
                     'dbtype' => 'text',
                     'phptype' => 'string',
                     'null' => true,
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'PRIMARY' =>
+                'PRIMARY' => 
                 array (
                     'alias' => 'PRIMARY',
                     'primary' => true,
                     'unique' => true,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'type' =>
+                        'type' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -49,9 +49,9 @@ class BloodType extends \sample\BloodType {
                     ),
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'Person' =>
+                'Person' => 
                 array (
                     'class' => 'sample\\Person',
                     'local' => 'type',

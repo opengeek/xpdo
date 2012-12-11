@@ -6,4 +6,6 @@ namespace sample;
  * @see personphone.map.inc.php
  * @package sample
  */
-class PersonPhone extends \xPDO\om\xPDOObject {}
+class PersonPhone extends \xPDO\om\xPDOObject
+{
+}

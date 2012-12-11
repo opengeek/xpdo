@@ -1,23 +1,23 @@
 <?php
 namespace sample\mysql;
 use xPDO\xPDO;
-
-class BloodType extends \sample\BloodType {
+class BloodType extends \sample\BloodType
+{
     use \xPDO\om\mysql\xPDOObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'blood_types',
-            'extends' => 'xPDOObject',
-            'fields' =>
+            'extends' => '\\xPDO\\om\\xPDOObject',
+            'fields' => 
             array (
                 'type' => NULL,
                 'description' => NULL,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'type' =>
+                'type' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -25,24 +25,24 @@ class BloodType extends \sample\BloodType {
                     'null' => false,
                     'index' => 'pk',
                 ),
-                'description' =>
+                'description' => 
                 array (
                     'dbtype' => 'text',
                     'phptype' => 'string',
                     'null' => true,
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'PRIMARY' =>
+                'PRIMARY' => 
                 array (
                     'alias' => 'PRIMARY',
                     'primary' => true,
                     'unique' => true,
                     'type' => 'BTREE',
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'type' =>
+                        'type' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -50,11 +50,11 @@ class BloodType extends \sample\BloodType {
                     ),
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'Person' =>
+                'Person' => 
                 array (
-                    'class' => 'Person',
+                    'class' => 'sample\\Person',
                     'local' => 'type',
                     'foreign' => 'blood_type',
                     'cardinality' => 'many',

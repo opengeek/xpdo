@@ -1,16 +1,16 @@
 <?php
 namespace sample\sqlite;
 use xPDO\xPDO;
-
-class xPDOSample extends \sample\xPDOSample {
+class xPDOSample extends \sample\xPDOSample
+{
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'xpdosample',
             'extends' => '\\xPDO\\om\\xPDOSimpleObject',
-            'fields' =>
+            'fields' => 
             array (
                 'parent' => 0,
                 'unique_varchar' => NULL,
@@ -26,80 +26,80 @@ class xPDOSample extends \sample\xPDOSample {
                 'float' => '1.01230',
                 'boolean' => NULL,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'parent' =>
+                'parent' => 
                 array (
                     'dbtype' => 'int',
                     'phptype' => 'integer',
                     'null' => false,
                     'default' => 0,
                 ),
-                'unique_varchar' =>
+                'unique_varchar' => 
                 array (
                     'dbtype' => 'varchar',
                     'phptype' => 'string',
                     'null' => false,
                     'index' => 'unique',
                 ),
-                'varchar' =>
+                'varchar' => 
                 array (
                     'dbtype' => 'varchar',
                     'phptype' => 'string',
                     'null' => false,
                 ),
-                'text' =>
+                'text' => 
                 array (
                     'dbtype' => 'text',
                     'phptype' => 'string',
                     'null' => true,
                 ),
-                'timestamp' =>
+                'timestamp' => 
                 array (
                     'dbtype' => 'timestamp',
                     'phptype' => 'timestamp',
                     'null' => false,
                     'default' => 'CURRENT_TIMESTAMP',
                 ),
-                'unix_timestamp' =>
+                'unix_timestamp' => 
                 array (
                     'dbtype' => 'int',
                     'phptype' => 'integer',
                     'null' => false,
                     'default' => 0,
                 ),
-                'date_time' =>
+                'date_time' => 
                 array (
                     'dbtype' => 'datetime',
                     'phptype' => 'datetime',
                     'null' => true,
                 ),
-                'date' =>
+                'date' => 
                 array (
                     'dbtype' => 'date',
                     'phptype' => 'date',
                     'null' => true,
                 ),
-                'enum' =>
+                'enum' => 
                 array (
                     'dbtype' => 'enum',
                     'precision' => '\'\',\'T\',\'F\'',
                     'phptype' => 'string',
                     'null' => false,
                 ),
-                'password' =>
+                'password' => 
                 array (
                     'dbtype' => 'varchar',
                     'phptype' => 'password',
                     'null' => false,
                 ),
-                'integer' =>
+                'integer' => 
                 array (
                     'dbtype' => 'int',
                     'phptype' => 'integer',
                     'null' => false,
                 ),
-                'float' =>
+                'float' => 
                 array (
                     'dbtype' => 'decimal',
                     'precision' => '10,5',
@@ -107,7 +107,7 @@ class xPDOSample extends \sample\xPDOSample {
                     'null' => false,
                     'default' => '1.01230',
                 ),
-                'boolean' =>
+                'boolean' => 
                 array (
                     'dbtype' => 'tinyint',
                     'precision' => '1',
@@ -115,28 +115,28 @@ class xPDOSample extends \sample\xPDOSample {
                     'null' => false,
                 ),
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'PRIMARY' =>
+                'PRIMARY' => 
                 array (
                     'alias' => 'PRIMARY',
                     'primary' => true,
                     'unique' => true,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'id' =>
+                        'id' => 
                         array (
                         ),
                     ),
                 ),
-                'unique_varchar' =>
+                'unique_varchar' => 
                 array (
                     'alias' => 'unique_varchar',
                     'primary' => false,
                     'unique' => true,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'unique_varchar' =>
+                        'unique_varchar' => 
                         array (
                         ),
                     ),

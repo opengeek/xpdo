@@ -7,23 +7,24 @@ use xPDO\xPDO;
  *
  * @package sample.mysql
  */
-class Phone extends \sample\Phone {
+class Phone extends \sample\Phone
+{
     use \xPDO\om\mysql\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'phone',
-            'extends' => 'xPDOSimpleObject',
-            'fields' =>
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
+            'fields' => 
             array (
                 'type' => '',
                 'number' => NULL,
                 'date_modified' => 'CURRENT_TIMESTAMP',
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'type' =>
+                'type' => 
                 array (
                     'dbtype' => 'enum',
                     'precision' => '\'\',\'home\',\'work\',\'mobile\'',
@@ -31,14 +32,14 @@ class Phone extends \sample\Phone {
                     'null' => false,
                     'default' => '',
                 ),
-                'number' =>
+                'number' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '20',
                     'phptype' => 'string',
                     'null' => false,
                 ),
-                'date_modified' =>
+                'date_modified' => 
                 array (
                     'dbtype' => 'timestamp',
                     'phptype' => 'timestamp',
@@ -47,9 +48,9 @@ class Phone extends \sample\Phone {
                     'attributes' => 'ON UPDATE CURRENT_TIMESTAMP',
                 ),
             ),
-            'composites' =>
+            'composites' => 
             array (
-                'PersonPhone' =>
+                'PersonPhone' => 
                 array (
                     'class' => 'sample\\PersonPhone',
                     'local' => 'id',

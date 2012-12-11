@@ -1,16 +1,16 @@
 <?php
 namespace sample\sqlite;
 use xPDO\xPDO;
-
-class Person extends \sample\Person {
+class Person extends \sample\Person
+{
     use \xPDO\om\sqlite\xPDOSimpleObject;
     public static function map(xPDO &$xpdo) {
         $xpdo->map[__CLASS__] = array (
             'package' => 'sample',
-            'version' => '1.1',
+            'version' => '3.0',
             'table' => 'person',
             'extends' => '\\xPDO\\om\\xPDOSimpleObject',
-            'fields' =>
+            'fields' => 
             array (
                 'first_name' => '',
                 'last_name' => '',
@@ -23,9 +23,9 @@ class Person extends \sample\Person {
                 'password' => '',
                 'security_level' => 1,
             ),
-            'fieldMeta' =>
+            'fieldMeta' => 
             array (
-                'first_name' =>
+                'first_name' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -33,7 +33,7 @@ class Person extends \sample\Person {
                     'null' => false,
                     'default' => '',
                 ),
-                'last_name' =>
+                'last_name' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -41,7 +41,7 @@ class Person extends \sample\Person {
                     'null' => false,
                     'default' => '',
                 ),
-                'middle_name' =>
+                'middle_name' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
@@ -49,20 +49,20 @@ class Person extends \sample\Person {
                     'null' => false,
                     'default' => '',
                 ),
-                'date_modified' =>
+                'date_modified' => 
                 array (
                     'dbtype' => 'timestamp',
                     'phptype' => 'timestamp',
                     'null' => false,
                     'default' => 'CURRENT_TIMESTAMP',
                 ),
-                'dob' =>
+                'dob' => 
                 array (
                     'dbtype' => 'date',
                     'phptype' => 'date',
                     'null' => true,
                 ),
-                'gender' =>
+                'gender' => 
                 array (
                     'dbtype' => 'enum',
                     'precision' => '\'\',\'M\',\'F\'',
@@ -70,14 +70,14 @@ class Person extends \sample\Person {
                     'null' => false,
                     'default' => '',
                 ),
-                'blood_type' =>
+                'blood_type' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '100',
                     'phptype' => 'string',
                     'null' => true,
                 ),
-                'username' =>
+                'username' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '255',
@@ -85,7 +85,7 @@ class Person extends \sample\Person {
                     'null' => false,
                     'index' => 'unique',
                 ),
-                'password' =>
+                'password' => 
                 array (
                     'dbtype' => 'varchar',
                     'precision' => '255',
@@ -93,7 +93,7 @@ class Person extends \sample\Person {
                     'null' => false,
                     'default' => '',
                 ),
-                'security_level' =>
+                'security_level' => 
                 array (
                     'dbtype' => 'tinyint',
                     'precision' => '4',
@@ -102,34 +102,34 @@ class Person extends \sample\Person {
                     'default' => 1,
                 ),
             ),
-            'fieldAliases' =>
+            'fieldAliases' => 
             array (
                 'date_of_birth' => 'dob',
             ),
-            'indexes' =>
+            'indexes' => 
             array (
-                'PRIMARY' =>
+                'PRIMARY' => 
                 array (
                     'alias' => 'PRIMARY',
                     'primary' => true,
                     'unique' => true,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'id' =>
+                        'id' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
                         ),
                     ),
                 ),
-                'username' =>
+                'username' => 
                 array (
                     'alias' => 'username',
                     'primary' => false,
                     'unique' => true,
-                    'columns' =>
+                    'columns' => 
                     array (
-                        'username' =>
+                        'username' => 
                         array (
                             'collation' => 'A',
                             'null' => false,
@@ -137,9 +137,9 @@ class Person extends \sample\Person {
                     ),
                 ),
             ),
-            'composites' =>
+            'composites' => 
             array (
-                'PersonPhone' =>
+                'PersonPhone' => 
                 array (
                     'class' => 'sample\\PersonPhone',
                     'local' => 'id',
@@ -148,9 +148,9 @@ class Person extends \sample\Person {
                     'owner' => 'local',
                 ),
             ),
-            'aggregates' =>
+            'aggregates' => 
             array (
-                'BloodType' =>
+                'BloodType' => 
                 array (
                     'class' => 'sample\\BloodType',
                     'local' => 'blood_type',
@@ -159,22 +159,22 @@ class Person extends \sample\Person {
                     'owner' => 'foreign',
                 ),
             ),
-            'validation' =>
+            'validation' => 
             array (
                 'class' => '\\xPDO\\validation\\xPDOValidator',
-                'rules' =>
+                'rules' => 
                 array (
-                    'dob' =>
+                    'dob' => 
                     array (
-                        'date_format' =>
+                        'date_format' => 
                         array (
                             'type' => 'preg_match',
                             'rule' => '/\\d{4}-\\d{2}-\\d{2}/',
                         ),
                     ),
-                    'password' =>
+                    'password' => 
                     array (
-                        'password_length' =>
+                        'password_length' => 
                         array (
                             'type' => 'xPDOValidationRule',
                             'rule' => '\\xPDO\\validation\\xPDOMinLengthValidationRule',

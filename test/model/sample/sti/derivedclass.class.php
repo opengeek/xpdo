@@ -1,4 +1,5 @@
 <?php
 namespace sample\sti;
-
-class derivedClass extends baseClass {}
+class derivedClass extends \sample\sti\baseClass
+{
+}
