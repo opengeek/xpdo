@@ -3,6 +3,6 @@ namespace sample;
 
 class Transient {
     public static function callTest() {
-        return 'Transient';
+        return __CLASS__;
     }
 }

@@ -144,4 +144,8 @@ class xPDOSample extends \sample\xPDOSample
             ),
         );
     }
+
+    public static function callTest() {
+        return __CLASS__;
+    }
 }

@@ -54,4 +54,8 @@ class Item extends \sample\Item
             ),
         );
     }
+
+    public static function callTest() {
+        return __CLASS__;
+    }
 }

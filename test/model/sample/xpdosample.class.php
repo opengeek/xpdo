@@ -13,4 +13,7 @@ namespace sample;
  */
 class xPDOSample extends \xPDO\om\xPDOSimpleObject
 {
+    public static function callTest() {
+        return __CLASS__;
+    }
 }

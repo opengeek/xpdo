@@ -552,19 +552,32 @@ class xPDOTest extends xPDOTestCase {
 
     /**
      * Test xPDO->call()
+     *
+     * @dataProvider providerCall
+     * @param $class
+     * @param $method
+     * @param $args
+     * @param $transient
+     * @param $expected
      */
-    public function testCall() {
+    public function testCall($class, $method, $args, $transient, $expected) {
         if (!empty(xPDOTestHarness::$debug)) print "\n" . __METHOD__ . " = ";
-        $results = array();
+        $actual = false;
+        $expected = str_replace('{dbtype}', $this->xpdo->getOption('dbtype'), $expected);
         try {
-            $results[] = ($this->xpdo->call('sample\\Item', 'callTest') === 'Item_' . $this->xpdo->getOption('dbtype'));
-            $results[] = ($this->xpdo->call('sample\\xPDOSample', 'callTest') === 'xPDOSample');
-            $results[] = ($this->xpdo->call('sample\\TransientDerivative', 'callTest', array(), true) === 'TransientDerivative');
-            $results[] = ($this->xpdo->call('sample\\Transient', 'callTest', array(), true) === 'Transient');
+            $actual = $this->xpdo->call($class, $method, $args, $transient);
         } catch (Exception $e) {
             $this->xpdo->log(xPDO::LOG_LEVEL_ERROR, $e->getMessage(), '', __METHOD__, __FILE__, __LINE__);
         }
-        $this->assertTrue(!array_search(false, $results, true), 'Error using call()');
+        $this->assertEquals($expected, $actual, 'Error using call()');
+    }
+    public function providerCall() {
+        return array(
+            array('sample\\Item', 'callTest', array(), false, 'sample\\{dbtype}\\Item'),
+            array('sample\\xPDOSample', 'callTest', array(), false, 'sample\\{dbtype}\\xPDOSample'),
+            array('sample\\TransientDerivative', 'callTest', array(), true, 'sample\\TransientDerivative'),
+            array('sample\\Transient', 'callTest', array(), true, 'sample\\Transient'),
+        );
     }
 
     /**
