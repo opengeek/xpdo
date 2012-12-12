@@ -225,8 +225,8 @@ abstract class xPDOGenerator {
         } else {
             $compile = array_key_exists('compile', $options) ? (boolean) $options['compile'] : false;
         }
-        $regenerate = array_key_exists('regenerate', $options) ? (boolean) $options['regenerate'] : false;
-        $update = array_key_exists('update', $options) ? (boolean) $options['update'] : true;
+        $regenerate = array_key_exists('regenerate', $options) ? (integer) $options['regenerate'] : 0;
+        $update = array_key_exists('update', $options) ? (integer) $options['update'] : 2;
 
         $this->schemaFile= $schemaFile;
         $this->classTemplate= $this->getClassTemplate();
@@ -491,11 +491,12 @@ abstract class xPDOGenerator {
      * Create or update the generated class files to the specified path.
      *
      * @param string $path An absolute path to write the generated class files to.
-     * @param boolean $update Indicates if existing class files should be updated.
-     * @param boolean $regenerate Indicates if existing class files should be
-     * regenerated.
+     * @param int $update Indicates if existing class files should be updated; 0=no,
+     * 1=update platform classes, 2=update all classes.
+     * @param int $regenerate Indicates if existing class files should be regenerated;
+     * 0=no, 1=regenerate platform classes, 2=regenerate all classes.
      */
-    public function outputClasses($path, $update = true, $regenerate = false) {
+    public function outputClasses($path, $update = 2, $regenerate = 0) {
         $platform= $this->model['platform'];
         if (isset($this->model['phpdoc-package'])) {
             $this->model['phpdoc-package']= '@package ' . $this->model['phpdoc-package'];
@@ -527,13 +528,13 @@ abstract class xPDOGenerator {
             $fileName= $path . strtolower(str_replace('\\', DIRECTORY_SEPARATOR, ltrim($classFullName, '\\'))) . '.class.php';
             $newClass= !file_exists($fileName);
             if (!in_array($classFullName, self::$updated)) {
-                if ($newClass || $regenerate) {
+                if ($newClass || $regenerate === 2) {
                     $this->_loadClass($classFullName, $classDef);
                     self::$updated[] = $classFullName;
                     if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
                         $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct domain class {$classFullName} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
                     }
-                } elseif (!$newClass && $update) {
+                } elseif (!$newClass && $update === 2) {
                     $this->_loadExistingClass($classFullName, $classDef);
                     self::$updated[] = $classFullName;
                     if (!$this->_constructClass($fileName, $classDef, $this->getClassTemplate())) {
@@ -550,13 +551,13 @@ abstract class xPDOGenerator {
             $newPlatformClass= !file_exists($fileName);
             if (!in_array($platformClass, self::$updated)) {
                 if (isset($this->map[$className])) $classDef['map'] = static::varExport($this->map[$className], 2);
-                if ($newPlatformClass || $regenerate) {
+                if ($newPlatformClass || $regenerate > 0) {
                     $this->_loadClass($platformClass, $classDef);
                     self::$updated[] = $platformClass;
                     if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
                         $this->manager->xpdo->log(xPDO::LOG_LEVEL_ERROR, "Could not construct platform class {$platformClass} to file {$fileName}", '', __METHOD__, __FILE__, __LINE__);
                     }
-                } elseif (!$newClass && $update) {
+                } elseif (!$newClass && $update > 0) {
                     $this->_loadExistingClass($platformClass, $classDef);
                     self::$updated[] = $platformClass;
                     if (!$this->_constructClass($fileName, $classDef, $this->getClassPlatformTemplate($platform))) {
@@ -721,7 +722,7 @@ EOD;
      * @param string $class
      * @param array &$meta
      */
-    protected function _loadExistingClass($class, &$meta = array()) {
+    protected function _loadExistingClass($class, &$meta) {
         try {
             $reflector = new \xPDO\reflect\xPDOReflectionClass($class);
 
@@ -785,7 +786,7 @@ EOD;
         }
     }
 
-    protected function _loadClass($class, &$meta = array()) {
+    protected function _loadClass($class, &$meta) {
         $meta['class-header'] = $this->_constructClassHeader($class, $meta);
         $meta['class-declaration'] = $this->_constructClassDeclaration($class, $meta);
         $meta['class-traits'] = implode("\n", $this->_constructClassTraits($class, $meta));
