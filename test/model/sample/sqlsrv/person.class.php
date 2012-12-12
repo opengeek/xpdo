@@ -1,35 +1,176 @@
 <?php
-/**
- * Defines sample xPDO classes implemented for sqlsrv.
- *
- * This is an example file containing three closely related classes representing
- * a simple example object model implemented on xPDO for sqlsrv.
- *
- * @package sample.sqlsrv
- */
-
-/**
- * Include the required database-independent parent classes.
- */
-require_once (dirname(dirname(__FILE__)) . '/person.class.php');
+namespace sample\sqlsrv;
+use xPDO\xPDO;
 
 /**
  * Represents a Person.
- * @see person.map.inc.php
+ *
  * @package sample.sqlsrv
  */
-class Person_sqlsrv extends Person {}
-
-/**
- * Represents a Phone number.
- * @see phone.map.inc.php
- * @package sample.sqlsrv
- */
-class Phone_sqlsrv extends Phone {}
-
-/**
- * Represents a one to many relationship between a Person and a Phone.
- * @see personphone.map.inc.php
- * @package sample.sqlsrv
- */
-class PersonPhone_sqlsrv extends PersonPhone {}
+class Person extends \sample\Person
+{
+    use \xPDO\om\sqlsrv\xPDOSimpleObject;
+    public static function map(xPDO &$xpdo) {
+        $xpdo->map[__CLASS__] = array (
+            'package' => 'sample',
+            'version' => '3.0',
+            'table' => 'person',
+            'extends' => '\\xPDO\\om\\xPDOSimpleObject',
+            'fields' => 
+            array (
+                'first_name' => NULL,
+                'last_name' => NULL,
+                'middle_name' => NULL,
+                'date_modified' => 'CURRENT_TIMESTAMP',
+                'dob' => NULL,
+                'gender' => '',
+                'blood_type' => '',
+                'username' => NULL,
+                'password' => NULL,
+                'security_level' => 1,
+            ),
+            'fieldMeta' => 
+            array (
+                'first_name' => 
+                array (
+                    'dbtype' => 'varchar',
+                    'precision' => '100',
+                    'phptype' => 'string',
+                    'null' => false,
+                ),
+                'last_name' => 
+                array (
+                    'dbtype' => 'varchar',
+                    'precision' => '100',
+                    'phptype' => 'string',
+                    'null' => false,
+                ),
+                'middle_name' => 
+                array (
+                    'dbtype' => 'varchar',
+                    'precision' => '100',
+                    'phptype' => 'string',
+                    'null' => false,
+                ),
+                'date_modified' => 
+                array (
+                    'dbtype' => 'datetime',
+                    'phptype' => 'datetime',
+                    'null' => false,
+                    'default' => 'CURRENT_TIMESTAMP',
+                ),
+                'dob' => 
+                array (
+                    'dbtype' => 'date',
+                    'phptype' => 'date',
+                    'null' => true,
+                ),
+                'gender' => 
+                array (
+                    'dbtype' => 'enum',
+                    'precision' => '\'\',\'M\',\'F\'',
+                    'phptype' => 'string',
+                    'null' => false,
+                    'default' => '',
+                ),
+                'blood_type' => 
+                array (
+                    'dbtype' => 'enum',
+                    'precision' => '\'\',\'A+\',\'A-\',\'B+\',\'B-\',\'AB+\',\'AB-\',\'O+\',\'O-\'',
+                    'phptype' => 'string',
+                    'null' => false,
+                    'default' => '',
+                ),
+                'username' => 
+                array (
+                    'dbtype' => 'varchar',
+                    'precision' => '255',
+                    'phptype' => 'string',
+                    'null' => false,
+                    'index' => 'unique',
+                ),
+                'password' => 
+                array (
+                    'dbtype' => 'varchar',
+                    'precision' => '255',
+                    'phptype' => 'password',
+                    'null' => false,
+                ),
+                'security_level' => 
+                array (
+                    'dbtype' => 'tinyint',
+                    'phptype' => 'integer',
+                    'null' => false,
+                    'default' => 1,
+                ),
+            ),
+            'fieldAliases' => 
+            array (
+                'date_of_birth' => 'dob',
+            ),
+            'indexes' => 
+            array (
+                'username' => 
+                array (
+                    'alias' => 'username',
+                    'primary' => false,
+                    'unique' => true,
+                    'columns' => 
+                    array (
+                        'username' => 
+                        array (
+                            'collation' => 'A',
+                            'null' => false,
+                        ),
+                    ),
+                ),
+            ),
+            'composites' => 
+            array (
+                'PersonPhone' => 
+                array (
+                    'class' => 'sample\\PersonPhone',
+                    'local' => 'id',
+                    'foreign' => 'person',
+                    'cardinality' => 'many',
+                    'owner' => 'local',
+                ),
+            ),
+            'aggregates' => 
+            array (
+                'BloodType' => 
+                array (
+                    'class' => 'sample\\BloodType',
+                    'local' => 'blood_type',
+                    'foreign' => 'type',
+                    'cardinality' => 'one',
+                    'owner' => 'foreign',
+                ),
+            ),
+            'validation' => 
+            array (
+                'class' => '\\xPDO\\validation\\xPDOValidator',
+                'rules' => 
+                array (
+                    'dob' => 
+                    array (
+                        'date_format' => 
+                        array (
+                            'type' => 'preg_match',
+                            'rule' => '/\\d{4}-\\d{2}-\\d{2}/',
+                        ),
+                    ),
+                    'password' => 
+                    array (
+                        'password_length' => 
+                        array (
+                            'type' => 'xPDOValidationRule',
+                            'rule' => '\\xPDO\\validation\\xPDOMinLengthValidationRule',
+                            'value' => '6',
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+}
