@@ -15,12 +15,12 @@
         }
     ],
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=7.4",
         "ext-PDO": "*",
         "ext-json": "*",
         "ext-simplexml": "*",
-        "symfony/console": "^5.4",
-        "psr/container": "^2.0.1"
+        "symfony/console": "~5.4",
+        "psr/container": "~2.0.2"
     },
     "require-dev": {
         "yoast/phpunit-polyfills": "^1.0"
